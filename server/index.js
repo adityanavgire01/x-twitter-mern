@@ -8,6 +8,8 @@ const passport = require('passport');
 // Import routes
 const authRoutes = require('./routes/auth');
 const tweetRoutes = require('./routes/tweets');
+const userRoutes = require('./routes/users');
+const searchRoutes = require('./routes/search');
 
 // Load environment variables
 dotenv.config();
@@ -24,6 +26,8 @@ app.use(passport.initialize());
 // Routes
 app.use('/api/auth', authRoutes);
 app.use('/api/tweets', tweetRoutes);
+app.use('/api/users', userRoutes);
+app.use('/api/search', searchRoutes);
 
 // Basic route for testing
 app.get('/', (req, res) => {
