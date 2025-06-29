@@ -1,8 +1,11 @@
 import { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
+import { useAuth } from '../../context/auth';
 import './Auth.css';
 
 function Register() {
+  const navigate = useNavigate();
+  const { register, loading, error: authError } = useAuth();
   const [formData, setFormData] = useState({
     username: '',
     email: '',
@@ -50,11 +53,16 @@ function Register() {
     }
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     if (validateForm()) {
-      // TODO: Implement registration logic
-      console.log('Registration attempt with:', formData);
+      try {
+        await register(formData);
+        navigate('/');
+      } catch (err) {
+        // Error is handled by auth context
+        console.error('Registration failed:', err);
+      }
     }
   };
 
@@ -64,6 +72,8 @@ function Register() {
         <h1>Create your account</h1>
         
         <form onSubmit={handleSubmit} className="auth-form">
+          {authError && <div className="error-message">{authError}</div>}
+          
           <div className="form-group">
             <input
               type="text"
@@ -116,8 +126,12 @@ function Register() {
             {errors.password && <span className="error-message">{errors.password}</span>}
           </div>
 
-          <button type="submit" className="btn btn-primary">
-            Sign up
+          <button 
+            type="submit" 
+            className="btn btn-primary"
+            disabled={loading}
+          >
+            {loading ? 'Creating account...' : 'Sign up'}
           </button>
         </form>
 
