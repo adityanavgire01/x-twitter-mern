@@ -1,66 +1,75 @@
 import { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
+import { useAuth } from '../../context/auth';
 import './Auth.css';
 
-function Login() {
+const Login = () => {
   const [formData, setFormData] = useState({
     email: '',
-    password: ''
+    password: '',
   });
+  const [error, setError] = useState('');
+  const { login } = useAuth();
+  const navigate = useNavigate();
 
   const handleChange = (e) => {
-    const { name, value } = e.target;
-    setFormData(prev => ({
-      ...prev,
-      [name]: value
-    }));
+    setFormData({
+      ...formData,
+      [e.target.name]: e.target.value,
+    });
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    // TODO: Implement login logic
-    console.log('Login attempt with:', formData);
+    setError('');
+    
+    try {
+      await login(formData);
+      navigate('/');
+    } catch (err) {
+      setError(err.response?.data?.message || 'Login failed. Please try again.');
+    }
   };
 
   return (
-    <div className="auth-container flex-center">
+    <div className="auth-container">
       <div className="auth-box">
-        <h1>Log in to X</h1>
-        
-        <form onSubmit={handleSubmit} className="auth-form">
+        <h2>Login to X</h2>
+        {error && <div className="error-message">{error}</div>}
+        <form onSubmit={handleSubmit}>
           <div className="form-group">
             <input
               type="email"
               name="email"
+              placeholder="Email"
               value={formData.email}
               onChange={handleChange}
-              placeholder="Email"
               required
             />
           </div>
-
           <div className="form-group">
             <input
               type="password"
               name="password"
+              placeholder="Password"
               value={formData.password}
               onChange={handleChange}
-              placeholder="Password"
               required
             />
           </div>
-
-          <button type="submit" className="btn btn-primary">
-            Log in
+          <button type="submit" className="auth-button">
+            Login
           </button>
         </form>
-
         <p className="auth-switch">
-          Don't have an account? <Link to="/register">Sign up</Link>
+          Don't have an account?{' '}
+          <span onClick={() => navigate('/register')} className="auth-link">
+            Register
+          </span>
         </p>
       </div>
     </div>
   );
-}
+};
 
 export default Login; 
