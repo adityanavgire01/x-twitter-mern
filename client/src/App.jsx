@@ -1,55 +1,85 @@
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
-import { useEffect } from 'react';
-import './styles/global.css';
-import Login from './components/auth/Login';
+import { AuthProvider } from './context/auth';
 import Register from './components/auth/Register';
-import { AuthProvider, useAuth } from './context/AuthContext';
+import Login from './components/auth/Login';
+import TweetFeed from './components/tweets/TweetFeed';
+import TweetDetail from './components/tweets/TweetDetail';
+import Profile from './components/profile/Profile';
+import Navbar from './components/layout/Navbar';
+import Search from './components/search/Search';
+import './App.css';
 
-// Placeholder components (we'll create these next)
-const Home = () => <div>Home Page</div>;
-const Profile = () => <div>Profile Page</div>;
+const PrivateRoute = ({ children }) => {
+  const token = localStorage.getItem('token');
+  return token ? children : <Navigate to="/login" />;
+};
 
-function AppRoutes() {
-  const { user, checkAuth } = useAuth();
-
-  useEffect(() => {
-    checkAuth();
-  }, [checkAuth]);
-
-  return (
-    <Routes>
-      {/* Public Routes */}
-      <Route 
-        path="/login" 
-        element={!user ? <Login /> : <Navigate to="/" />} 
-      />
-      <Route 
-        path="/register" 
-        element={!user ? <Register /> : <Navigate to="/" />} 
-      />
-
-      {/* Protected Routes */}
-      <Route 
-        path="/" 
-        element={user ? <Home /> : <Navigate to="/login" />} 
-      />
-      <Route 
-        path="/profile/:username" 
-        element={user ? <Profile /> : <Navigate to="/login" />} 
-      />
-    </Routes>
-  );
-}
+const PublicRoute = ({ children }) => {
+  const token = localStorage.getItem('token');
+  return !token ? children : <Navigate to="/" />;
+};
 
 function App() {
   return (
-    <AuthProvider>
-      <Router>
+    <Router>
+      <AuthProvider>
         <div className="app">
-          <AppRoutes />
-        </div>
-      </Router>
-    </AuthProvider>
+          <Navbar />
+          <main className="main-content">
+            <Routes>
+              <Route 
+                path="/register" 
+                element={
+                  <PublicRoute>
+                    <Register />
+                  </PublicRoute>
+                } 
+              />
+              <Route 
+                path="/login" 
+                element={
+                  <PublicRoute>
+                    <Login />
+                  </PublicRoute>
+                } 
+              />
+              <Route 
+                path="/" 
+                element={
+                  <PrivateRoute>
+                    <TweetFeed />
+                  </PrivateRoute>
+                } 
+              />
+              <Route 
+                path="/tweet/:tweetId" 
+                element={
+                  <PrivateRoute>
+                    <TweetDetail />
+                  </PrivateRoute>
+                } 
+              />
+              <Route 
+                path="/:username" 
+                element={
+                  <PrivateRoute>
+                    <Profile />
+                  </PrivateRoute>
+                } 
+              />
+              <Route 
+                path="/search" 
+                element={
+                  <PrivateRoute>
+                    <Search />
+                  </PrivateRoute>
+                } 
+              />
+            </Routes>
+          </main>
+      </div>
+      </AuthProvider>
+    </Router>
   );
 }
 
