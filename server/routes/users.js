@@ -2,35 +2,118 @@ const express = require('express');
 const router = express.Router();
 const User = require('../models/User');
 const auth = require('../middleware/auth');
+const Tweet = require('../models/Tweet');
 
-// Follow a user
-router.post('/:userId/follow', auth, async (req, res) => {
+// Get user profile by username or ID
+router.get('/:identifier', auth, async (req, res) => {
     try {
-        if (req.params.userId === req.user.id) {
-            return res.status(400).json({ message: "You cannot follow yourself" });
+        const identifier = req.params.identifier;
+        let user;
+
+        // Check if identifier is a valid MongoDB ObjectId
+        if (identifier.match(/^[0-9a-fA-F]{24}$/)) {
+            user = await User.findById(identifier);
+        } else {
+            // If not an ObjectId, treat as username
+            user = await User.findOne({ username: identifier });
         }
 
-        const userToFollow = await User.findById(req.params.userId);
-        const currentUser = await User.findById(req.user.id);
-
-        if (!userToFollow || !currentUser) {
+        if (!user) {
             return res.status(404).json({ message: "User not found" });
         }
 
-        if (currentUser.following.includes(userToFollow.id)) {
-            return res.status(400).json({ message: "You are already following this user" });
+        // Remove password and populate followers/following
+        user = await User.findById(user._id)
+            .select('-password')
+            .populate('followers', 'username displayName profileImage')
+            .populate('following', 'username displayName profileImage');
+
+        res.json(user);
+    } catch (error) {
+        console.error('Error fetching user profile:', error);
+        res.status(500).json({ message: "Error fetching user profile" });
+    }
+});
+
+// Get user's tweets
+router.get('/:identifier/tweets', auth, async (req, res) => {
+    try {
+        const identifier = req.params.identifier;
+        let user;
+
+        // Check if identifier is a valid MongoDB ObjectId
+        if (identifier.match(/^[0-9a-fA-F]{24}$/)) {
+            user = await User.findById(identifier);
+        } else {
+            // If not an ObjectId, treat as username
+            user = await User.findOne({ username: identifier });
         }
 
-        // Add to following and followers
-        currentUser.following.push(userToFollow.id);
-        userToFollow.followers.push(currentUser.id);
+        if (!user) {
+            return res.status(404).json({ message: "User not found" });
+        }
+
+        const tweets = await Tweet.find({
+            author: user._id,
+            parentTweet: null
+        })
+        .sort({ createdAt: -1 })
+        .populate('author', 'username displayName profileImage');
+
+        res.json(tweets);
+    } catch (error) {
+        console.error('Error fetching user tweets:', error);
+        res.status(500).json({ message: "Error fetching user tweets" });
+    }
+});
+
+// Follow a user
+router.post('/:identifier/follow', auth, async (req, res) => {
+    try {
+        const identifier = req.params.identifier;
+        let userToFollow;
+
+        // Check if identifier is a valid MongoDB ObjectId
+        if (identifier.match(/^[0-9a-fA-F]{24}$/)) {
+            userToFollow = await User.findById(identifier);
+        } else {
+            // If not an ObjectId, treat as username
+            userToFollow = await User.findOne({ username: identifier });
+        }
+
+        if (!userToFollow) {
+            return res.status(404).json({ message: "User not found" });
+        }
+
+        if (userToFollow._id.toString() === req.user.id) {
+            return res.status(400).json({ message: "You cannot follow yourself" });
+        }
+
+        const currentUser = await User.findById(req.user.id);
+
+        if (currentUser.following.includes(userToFollow._id)) {
+            // If already following, unfollow
+            currentUser.following = currentUser.following.filter(id => id.toString() !== userToFollow._id.toString());
+            userToFollow.followers = userToFollow.followers.filter(id => id.toString() !== currentUser._id.toString());
+        } else {
+            // If not following, follow
+            currentUser.following.push(userToFollow._id);
+            userToFollow.followers.push(currentUser._id);
+        }
 
         await currentUser.save();
         await userToFollow.save();
 
-        res.json({ message: "Successfully followed user" });
+        // Return updated user with populated followers/following
+        const updatedUser = await User.findById(userToFollow._id)
+            .select('-password')
+            .populate('followers', 'username displayName profileImage')
+            .populate('following', 'username displayName profileImage');
+
+        res.json(updatedUser);
     } catch (error) {
-        res.status(500).json({ message: "Error following user" });
+        console.error('Error following/unfollowing user:', error);
+        res.status(500).json({ message: "Error following/unfollowing user" });
     }
 });
 
@@ -62,24 +145,6 @@ router.post('/:userId/unfollow', auth, async (req, res) => {
         res.json({ message: "Successfully unfollowed user" });
     } catch (error) {
         res.status(500).json({ message: "Error unfollowing user" });
-    }
-});
-
-// Get user profile
-router.get('/:userId', auth, async (req, res) => {
-    try {
-        const user = await User.findById(req.params.userId)
-            .select('-password')
-            .populate('followers', 'username displayName profileImage')
-            .populate('following', 'username displayName profileImage');
-
-        if (!user) {
-            return res.status(404).json({ message: "User not found" });
-        }
-
-        res.json(user);
-    } catch (error) {
-        res.status(500).json({ message: "Error fetching user profile" });
     }
 });
 
