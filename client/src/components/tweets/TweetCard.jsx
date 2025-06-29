@@ -1,11 +1,13 @@
 import { useState } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/auth';
 import './Tweets.css';
 
-const TweetCard = ({ tweet, onLike, onRetweet, onReply }) => {
+const TweetCard = ({ tweet, onLike, onRetweet, onReply, showActions = true }) => {
   const [isReplying, setIsReplying] = useState(false);
   const [replyContent, setReplyContent] = useState('');
   const { user } = useAuth();
+  const navigate = useNavigate();
 
   const formatDate = (dateString) => {
     const options = { month: 'short', day: 'numeric' };
@@ -19,53 +21,79 @@ const TweetCard = ({ tweet, onLike, onRetweet, onReply }) => {
     setIsReplying(false);
   };
 
+  const handleTweetClick = (e) => {
+    // Don't navigate if clicking on a link or button
+    if (e.target.closest('a') || e.target.closest('button')) {
+      return;
+    }
+    navigate(`/tweet/${tweet._id}`);
+  };
+
   return (
-    <div className="tweet-card">
+    <div className="tweet-card" onClick={handleTweetClick}>
       <div className="tweet-header">
-        <img 
-          src={tweet.author.profileImage || 'https://via.placeholder.com/40'} 
-          alt={tweet.author.username} 
-          className="profile-pic"
-        />
-        <div className="tweet-author-info">
-          <span className="author-name">{tweet.author.name}</span>
-          <span className="author-username">@{tweet.author.username}</span>
-          <span className="tweet-date">· {formatDate(tweet.createdAt)}</span>
-        </div>
+        <Link to={`/profile/${tweet.author._id}`} className="author-link" onClick={e => e.stopPropagation()}>
+          <div className="profile-pic">
+            {tweet.author.avatar ? (
+              <img 
+                src={tweet.author.avatar} 
+                alt={tweet.author.username} 
+              />
+            ) : (
+              <div className="default-avatar">
+                {tweet.author.username?.charAt(0).toUpperCase()}
+              </div>
+            )}
+          </div>
+          <div className="tweet-author-info">
+            <span className="author-name">{tweet.author.name}</span>
+            <span className="author-username">@{tweet.author.username}</span>
+            <span className="tweet-date">· {formatDate(tweet.createdAt)}</span>
+          </div>
+        </Link>
       </div>
       
       <div className="tweet-content">
         <p>{tweet.content}</p>
+        {tweet.media && tweet.media.length > 0 && (
+          <div className="tweet-media">
+            {tweet.media.map((url, index) => (
+              <img key={index} src={url} alt="Tweet media" />
+            ))}
+          </div>
+        )}
       </div>
 
-      <div className="tweet-actions">
-        <button 
-          className={`action-button reply-button ${isReplying ? 'active' : ''}`}
-          onClick={() => setIsReplying(!isReplying)}
-        >
-          <i className="far fa-comment"></i>
-          <span>{tweet.replies?.length || 0}</span>
-        </button>
+      {showActions && (
+        <div className="tweet-actions" onClick={e => e.stopPropagation()}>
+          <button 
+            className={`action-button reply-button ${isReplying ? 'active' : ''}`}
+            onClick={() => setIsReplying(!isReplying)}
+          >
+            <i className="far fa-comment"></i>
+            <span>{tweet.replies?.length || 0}</span>
+          </button>
 
-        <button 
-          className={`action-button retweet-button ${tweet.retweets?.includes(user?._id) ? 'active' : ''}`}
-          onClick={() => onRetweet(tweet._id)}
-        >
-          <i className="fas fa-retweet"></i>
-          <span>{tweet.retweets?.length || 0}</span>
-        </button>
+          <button 
+            className={`action-button retweet-button ${tweet.retweets?.includes(user?._id) ? 'active' : ''}`}
+            onClick={() => onRetweet(tweet._id)}
+          >
+            <i className="fas fa-retweet"></i>
+            <span>{tweet.retweets?.length || 0}</span>
+          </button>
 
-        <button 
-          className={`action-button like-button ${tweet.likes?.includes(user?._id) ? 'active' : ''}`}
-          onClick={() => onLike(tweet._id)}
-        >
-          <i className="far fa-heart"></i>
-          <span>{tweet.likes?.length || 0}</span>
-        </button>
-      </div>
+          <button 
+            className={`action-button like-button ${tweet.likes?.includes(user?._id) ? 'active' : ''}`}
+            onClick={() => onLike(tweet._id)}
+          >
+            <i className="far fa-heart"></i>
+            <span>{tweet.likes?.length || 0}</span>
+          </button>
+        </div>
+      )}
 
       {isReplying && (
-        <form onSubmit={handleReplySubmit} className="reply-form">
+        <form onSubmit={handleReplySubmit} className="reply-form" onClick={e => e.stopPropagation()}>
           <textarea
             value={replyContent}
             onChange={(e) => setReplyContent(e.target.value)}

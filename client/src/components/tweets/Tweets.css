@@ -233,4 +233,147 @@
   margin: 1rem;
   border-radius: 4px;
   text-align: center;
+}
+
+.author-link {
+  display: flex;
+  align-items: flex-start;
+  text-decoration: none;
+  color: inherit;
+}
+
+.author-link:hover .author-name {
+  text-decoration: underline;
+}
+
+/* Tweet Detail Styles */
+.tweet-detail {
+  max-width: 600px;
+  margin: 0 auto;
+  background-color: #000;
+}
+
+.tweet-detail-header {
+  padding: 1rem;
+  border-bottom: 1px solid #2f3336;
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+  position: sticky;
+  top: 64px;
+  background-color: rgba(0, 0, 0, 0.65);
+  backdrop-filter: blur(12px);
+  z-index: 100;
+}
+
+.tweet-detail-header h2 {
+  font-size: 1.25rem;
+  color: #e7e9ea;
+  margin: 0;
+}
+
+.back-button {
+  background: none;
+  border: none;
+  color: #e7e9ea;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 0.5rem;
+  border-radius: 9999px;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.back-button:hover {
+  background-color: rgba(239, 243, 244, 0.1);
+}
+
+.main-tweet {
+  border-bottom: 1px solid #2f3336;
+}
+
+.main-tweet .tweet-card {
+  border: none;
+  border-bottom: 1px solid #2f3336;
+}
+
+.reply-compose {
+  display: flex;
+  gap: 1rem;
+  padding: 1rem;
+  border-bottom: 1px solid #2f3336;
+}
+
+.reply-compose .profile-pic {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+}
+
+.reply-compose .reply-form {
+  flex: 1;
+}
+
+.reply-compose textarea {
+  width: 100%;
+  background: transparent;
+  border: none;
+  color: #e7e9ea;
+  font-size: 1.25rem;
+  min-height: 100px;
+  resize: none;
+  outline: none;
+}
+
+.reply-compose textarea::placeholder {
+  color: #71767b;
+}
+
+.reply-actions {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 1rem;
+}
+
+.character-count {
+  color: #71767b;
+}
+
+.reply-button {
+  background-color: rgb(29, 155, 240);
+  color: white;
+  border: none;
+  padding: 0.5rem 1rem;
+  border-radius: 9999px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.reply-button:hover {
+  background-color: rgb(26, 140, 216);
+}
+
+.reply-button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.replies-section {
+  padding: 1rem;
+}
+
+.replies-section h3 {
+  color: #e7e9ea;
+  font-size: 1.25rem;
+  margin-bottom: 1rem;
+}
+
+.no-replies {
+  color: #71767b;
+  text-align: center;
+  padding: 2rem;
+  font-size: 1.1rem;
 } 

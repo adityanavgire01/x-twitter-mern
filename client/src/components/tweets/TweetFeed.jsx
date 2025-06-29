@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
-import axios from 'axios';
 import { useAuth } from '../../context/auth';
+import axios from '../../config/axios';
 import CreateTweet from './CreateTweet';
 import TweetCard from './TweetCard';
 import './Tweets.css';
@@ -13,7 +13,7 @@ const TweetFeed = () => {
 
   const fetchTweets = async () => {
     try {
-      const response = await axios.get('/api/tweets');
+      const response = await axios.get('/tweets/feed');
       setTweets(response.data);
       setError(null);
     } catch (error) {
@@ -30,7 +30,7 @@ const TweetFeed = () => {
 
   const handleCreateTweet = async (content) => {
     try {
-      const response = await axios.post('/api/tweets', { content });
+      const response = await axios.post('/tweets', { content });
       setTweets([response.data, ...tweets]);
     } catch (error) {
       setError('Failed to create tweet. Please try again.');
@@ -40,7 +40,7 @@ const TweetFeed = () => {
 
   const handleLike = async (tweetId) => {
     try {
-      await axios.post(`/api/tweets/${tweetId}/like`);
+      await axios.post(`/tweets/${tweetId}/like`);
       const updatedTweets = tweets.map(tweet => 
         tweet._id === tweetId 
           ? { ...tweet, likes: tweet.likes.includes(user._id) 
@@ -57,7 +57,7 @@ const TweetFeed = () => {
 
   const handleRetweet = async (tweetId) => {
     try {
-      await axios.post(`/api/tweets/${tweetId}/retweet`);
+      await axios.post(`/tweets/${tweetId}/retweet`);
       const updatedTweets = tweets.map(tweet =>
         tweet._id === tweetId
           ? { ...tweet, retweets: tweet.retweets.includes(user._id)
@@ -74,7 +74,7 @@ const TweetFeed = () => {
 
   const handleReply = async (tweetId, content) => {
     try {
-      const response = await axios.post(`/api/tweets/${tweetId}/reply`, { content });
+      const response = await axios.post(`/tweets/${tweetId}/reply`, { content });
       const updatedTweets = tweets.map(tweet =>
         tweet._id === tweetId
           ? { ...tweet, replies: [...tweet.replies, response.data] }
