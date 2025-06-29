@@ -1,0 +1,236 @@
+.tweet-card {
+  border: 1px solid #2f3336;
+  padding: 1rem;
+  margin-bottom: 1px;
+  background-color: #000;
+  transition: background-color 0.2s;
+}
+
+.tweet-card:hover {
+  background-color: rgba(255, 255, 255, 0.03);
+}
+
+.tweet-header {
+  display: flex;
+  align-items: flex-start;
+  margin-bottom: 0.5rem;
+}
+
+.profile-pic {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  margin-right: 0.75rem;
+}
+
+.tweet-author-info {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.25rem;
+}
+
+.author-name {
+  font-weight: bold;
+  color: #e7e9ea;
+}
+
+.author-username, .tweet-date {
+  color: #71767b;
+}
+
+.tweet-content {
+  color: #e7e9ea;
+  margin: 0.5rem 0;
+  white-space: pre-wrap;
+  word-wrap: break-word;
+}
+
+.tweet-actions {
+  display: flex;
+  justify-content: space-between;
+  max-width: 425px;
+  margin-top: 0.75rem;
+}
+
+.action-button {
+  background: none;
+  border: none;
+  color: #71767b;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem;
+  border-radius: 50%;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.action-button:hover {
+  background-color: rgba(29, 155, 240, 0.1);
+  color: rgb(29, 155, 240);
+}
+
+.action-button.active {
+  color: rgb(29, 155, 240);
+}
+
+.reply-button:hover {
+  background-color: rgba(29, 155, 240, 0.1);
+  color: rgb(29, 155, 240);
+}
+
+.retweet-button:hover {
+  background-color: rgba(0, 186, 124, 0.1);
+  color: rgb(0, 186, 124);
+}
+
+.retweet-button.active {
+  color: rgb(0, 186, 124);
+}
+
+.like-button:hover {
+  background-color: rgba(249, 24, 128, 0.1);
+  color: rgb(249, 24, 128);
+}
+
+.like-button.active {
+  color: rgb(249, 24, 128);
+}
+
+.reply-form {
+  margin-top: 1rem;
+  border-top: 1px solid #2f3336;
+  padding-top: 1rem;
+}
+
+.reply-form textarea {
+  width: 100%;
+  background-color: transparent;
+  border: none;
+  color: #e7e9ea;
+  resize: none;
+  min-height: 80px;
+  font-size: 1rem;
+  outline: none;
+}
+
+.reply-form textarea::placeholder {
+  color: #71767b;
+}
+
+.reply-actions {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 0.5rem;
+}
+
+.character-count {
+  color: #71767b;
+}
+
+.reply-actions button {
+  background-color: rgb(29, 155, 240);
+  color: white;
+  border: none;
+  padding: 0.5rem 1rem;
+  border-radius: 9999px;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+.reply-actions button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* CreateTweet Component Styles */
+.create-tweet {
+  border: 1px solid #2f3336;
+  padding: 1rem;
+  background-color: #000;
+}
+
+.create-tweet-header {
+  display: flex;
+  gap: 1rem;
+}
+
+.tweet-form {
+  flex: 1;
+}
+
+.tweet-form textarea {
+  width: 100%;
+  background-color: transparent;
+  border: none;
+  color: #e7e9ea;
+  resize: none;
+  min-height: 100px;
+  font-size: 1.25rem;
+  outline: none;
+  margin-bottom: 1rem;
+}
+
+.tweet-form textarea::placeholder {
+  color: #71767b;
+}
+
+.tweet-form-actions {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  gap: 1rem;
+  border-top: 1px solid #2f3336;
+  padding-top: 1rem;
+}
+
+.tweet-button {
+  background-color: rgb(29, 155, 240);
+  color: white;
+  border: none;
+  padding: 0.5rem 1.5rem;
+  border-radius: 9999px;
+  font-weight: bold;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.tweet-button:hover {
+  background-color: rgb(26, 140, 216);
+}
+
+.tweet-button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* TweetFeed Component Styles */
+.tweet-feed {
+  max-width: 600px;
+  margin: 0 auto;
+  border-left: 1px solid #2f3336;
+  border-right: 1px solid #2f3336;
+}
+
+.tweets-list {
+  border-top: 1px solid #2f3336;
+}
+
+.loading {
+  text-align: center;
+  padding: 2rem;
+  color: #71767b;
+  font-size: 1.1rem;
+}
+
+.error-message {
+  background-color: rgba(244, 33, 46, 0.1);
+  color: rgb(244, 33, 46);
+  padding: 1rem;
+  margin: 1rem;
+  border-radius: 4px;
+  text-align: center;
+} 
