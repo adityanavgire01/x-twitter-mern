@@ -23,7 +23,7 @@ exports.searchTweets = async (req, res) => {
         { author: { $in: userIds } }
       ]
     })
-    .populate('author', 'name username avatar')
+    .populate('author', 'username displayName profileImage')
     .sort({ createdAt: -1 })
     .limit(20);
 
@@ -45,10 +45,10 @@ exports.searchUsers = async (req, res) => {
     const users = await User.find({
       $or: [
         { username: { $regex: q, $options: 'i' } },
-        { name: { $regex: q, $options: 'i' } },
+        { displayName: { $regex: q, $options: 'i' } },
         { bio: { $regex: q, $options: 'i' } }
       ]
-    }, 'name username avatar bio followers')
+    }, 'username displayName profileImage bio followers')
     .limit(20);
 
     res.json(users);
