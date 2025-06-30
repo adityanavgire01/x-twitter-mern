@@ -3,10 +3,12 @@ import { useParams } from 'react-router-dom';
 import { useAuth } from '../../context/auth';
 import axios from '../../config/axios';
 import TweetCard from '../tweets/TweetCard';
+import ProfilePicture from './ProfilePicture';
+import { DEFAULT_PROFILE_IMAGE, DEFAULT_BANNER_IMAGE } from '../../constants/defaults.jsx';
 import './Profile.css';
 
 const Profile = () => {
-  const { username } = useParams();
+  const { identifier } = useParams();
   const { user: currentUser } = useAuth();
   const [profile, setProfile] = useState(null);
   const [tweets, setTweets] = useState([]);
@@ -22,8 +24,8 @@ const Profile = () => {
     const fetchProfile = async () => {
       try {
         const [profileRes, tweetsRes] = await Promise.all([
-          axios.get(`/users/${username}`),
-          axios.get(`/users/${username}/tweets`)
+          axios.get(`/users/${identifier}`),
+          axios.get(`/users/${identifier}/tweets`)
         ]);
         setProfile(profileRes.data);
         setTweets(tweetsRes.data);
@@ -40,12 +42,14 @@ const Profile = () => {
       }
     };
 
-    fetchProfile();
-  }, [username]);
+    if (identifier) {
+      fetchProfile();
+    }
+  }, [identifier]);
 
   const handleFollow = async () => {
     try {
-      const response = await axios.post(`/users/${username}/follow`);
+      const response = await axios.post(`/users/${identifier}/follow`);
       setProfile(prev => ({
         ...prev,
         followers: response.data.followers
@@ -58,6 +62,13 @@ const Profile = () => {
       setError('Failed to follow user');
       console.error('Error following user:', error);
     }
+  };
+
+  const handleProfileUpdate = (profileImage) => {
+    setProfile(prev => ({
+      ...prev,
+      profileImage
+    }));
   };
 
   const handleLike = async (tweetId) => {
@@ -117,21 +128,21 @@ const Profile = () => {
       <div className="profile-header">
         <div className="profile-banner">
           <img
-            src={profile.bannerImage || 'https://via.placeholder.com/600x200'}
+            src={profile.bannerImage || DEFAULT_BANNER_IMAGE}
             alt="Profile banner"
             className="banner-image"
           />
         </div>
         <div className="profile-info">
-          <div className="profile-avatar">
-            <img
-              src={profile.profileImage || 'https://via.placeholder.com/150'}
-              alt={profile.name}
-              className="avatar-image"
-            />
-          </div>
+          <ProfilePicture 
+            profile={{
+              ...profile,
+              profileImage: profile.profileImage || DEFAULT_PROFILE_IMAGE
+            }} 
+            onUpdate={handleProfileUpdate} 
+          />
           <div className="profile-details">
-            <h1 className="profile-name">{profile.name}</h1>
+            <h1 className="profile-name">{profile.displayName || profile.name}</h1>
             <p className="profile-username">@{profile.username}</p>
             <p className="profile-bio">{profile.bio || 'No bio yet'}</p>
             <div className="profile-stats">
