@@ -3,6 +3,7 @@ import { useAuth } from '../../context/auth';
 import axios from '../../config/axios';
 import CreateTweet from './CreateTweet';
 import TweetCard from './TweetCard';
+import SuggestedUsers from '../suggested/SuggestedUsers';
 import './Tweets.css';
 
 const TweetFeed = () => {
@@ -96,19 +97,27 @@ const TweetFeed = () => {
   }
 
   return (
-    <div className="tweet-feed">
-      {error && <div className="error-message">{error}</div>}
-      <CreateTweet onTweetCreate={handleCreateTweet} />
-      <div className="tweets-list">
-        {tweets.map(tweet => (
-          <TweetCard
-            key={tweet._id}
-            tweet={tweet}
-            onLike={handleLike}
-            onRetweet={handleRetweet}
-            onReply={handleReply}
-          />
-        ))}
+    <div className="home-layout">
+      <div className="main-feed">
+        <div className="tweet-feed">
+          {error && <div className="error-message">{error}</div>}
+          <CreateTweet onTweetCreate={handleCreateTweet} />
+          <div className="tweets-list">
+            {tweets.map(tweet => (
+              <TweetCard
+                key={tweet._id}
+                tweet={tweet}
+                onLike={handleLike}
+                onRetweet={handleRetweet}
+                onReply={handleReply}
+              />
+            ))}
+          </div>
+        </div>
+      </div>
+      
+      <div className="right-panel">
+        <SuggestedUsers />
       </div>
     </div>
   );

@@ -25,22 +25,19 @@ router.post('/', auth, upload.array('media', 4), async (req, res) => {
   }
 });
 
-// Get feed tweets (tweets from user and followed users)
+// Get feed tweets (all tweets from all users)
 router.get('/feed', auth, async (req, res) => {
   try {
     const tweets = await Tweet.find({
-      $or: [
-        { author: { $in: [...req.user.following, req.user._id] } },
-        { retweets: req.user._id }
-      ],
       parentTweet: null // Only get original tweets, not replies
     })
-    .sort({ createdAt: -1 })
+    .sort({ createdAt: -1 }) // Sort by newest first
     .populate('author', 'username displayName profileImage')
-    .limit(20);
+    .limit(50); // Show more tweets since it's a global feed
 
     res.json(tweets);
   } catch (error) {
+    console.error('Error fetching feed:', error);
     res.status(500).json({ message: 'Error fetching feed' });
   }
 });
