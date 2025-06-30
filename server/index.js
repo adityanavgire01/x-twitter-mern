@@ -4,6 +4,7 @@ const dotenv = require('dotenv');
 const cors = require('cors');
 const bodyParser = require('body-parser');
 const passport = require('passport');
+const path = require('path');
 
 // Import routes
 const authRoutes = require('./routes/auth');
@@ -19,9 +20,14 @@ const app = express();
 
 // Middleware
 app.use(cors());
-app.use(bodyParser.json());
+app.use(express.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(passport.initialize());
+
+// Configure static file serving - this should come before routes
+const uploadsPath = path.join(__dirname, 'uploads');
+console.log('Uploads directory path:', uploadsPath); // Debug log
+app.use('/uploads', express.static(uploadsPath));
 
 // Routes
 app.use('/api/auth', authRoutes);
@@ -29,25 +35,24 @@ app.use('/api/tweets', tweetRoutes);
 app.use('/api/users', userRoutes);
 app.use('/api/search', searchRoutes);
 
-// Basic route for testing
-app.get('/', (req, res) => {
-  res.json({ message: 'Welcome to X-Twitter Clone API' });
+// Debug endpoint to check if server is serving files
+app.get('/test-uploads', (req, res) => {
+  res.json({
+    message: 'Upload path configuration',
+    uploadsPath,
+    exists: require('fs').existsSync(uploadsPath),
+    files: require('fs').readdirSync(uploadsPath)
+  });
 });
 
 // Connect to MongoDB
-const connectDB = async () => {
-  try {
-    await mongoose.connect(process.env.MONGODB_URI);
-    console.log('MongoDB connected successfully');
-  } catch (error) {
-    console.error('MongoDB connection error:', error);
-    process.exit(1);
-  }
-};
+mongoose.connect(process.env.MONGODB_URI)
+  .then(() => console.log('Connected to MongoDB'))
+  .catch(err => console.error('MongoDB connection error:', err));
 
 // Start server
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {
-  console.log(`Server is running on port ${PORT}`);
-  connectDB();
+  console.log(`Server running on port ${PORT}`);
+  console.log(`Static files will be served from: ${uploadsPath}`);
 }); 

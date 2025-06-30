@@ -29,6 +29,16 @@ const TweetCard = ({ tweet, onLike, onRetweet, onReply, showActions = true }) =>
     navigate(`/tweet/${tweet._id}`);
   };
 
+  const getMediaLayoutClass = (mediaCount) => {
+    switch (mediaCount) {
+      case 1: return 'single';
+      case 2: return 'double';
+      case 3: return 'triple';
+      case 4: return 'quad';
+      default: return '';
+    }
+  };
+
   return (
     <div className="tweet-card" onClick={handleTweetClick}>
       <div className="tweet-header">
@@ -56,9 +66,17 @@ const TweetCard = ({ tweet, onLike, onRetweet, onReply, showActions = true }) =>
       <div className="tweet-content">
         <p>{tweet.content}</p>
         {tweet.media && tweet.media.length > 0 && (
-          <div className="tweet-media">
+          <div className={`tweet-media ${getMediaLayoutClass(tweet.media.length)}`}>
             {tweet.media.map((url, index) => (
-              <img key={index} src={url} alt="Tweet media" />
+              <img 
+                key={index} 
+                src={url} 
+                alt={`Tweet media ${index + 1}`}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  window.open(url, '_blank');
+                }}
+              />
             ))}
           </div>
         )}

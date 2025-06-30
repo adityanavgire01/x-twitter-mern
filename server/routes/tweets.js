@@ -2,14 +2,17 @@ const express = require('express');
 const router = express.Router();
 const Tweet = require('../models/Tweet');
 const auth = require('../middleware/auth');
+const upload = require('../utils/mediaUpload');
 
 // Create a tweet
-router.post('/', auth, async (req, res) => {
+router.post('/', auth, upload.array('media', 4), async (req, res) => {
   try {
+    const mediaFiles = req.files ? req.files.map(file => `/uploads/${file.filename}`) : [];
+    
     const newTweet = new Tweet({
       content: req.body.content,
       author: req.user._id,
-      media: req.body.media || []
+      media: mediaFiles
     });
 
     const tweet = await newTweet.save();
@@ -17,6 +20,7 @@ router.post('/', auth, async (req, res) => {
     
     res.status(201).json(tweet);
   } catch (error) {
+    console.error('Error creating tweet:', error);
     res.status(500).json({ message: 'Error creating tweet' });
   }
 });
