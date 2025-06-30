@@ -106,13 +106,24 @@
 .user-avatar {
   width: 50px;
   height: 50px;
+  border-radius: 50%;
+  overflow: hidden;
+  flex-shrink: 0; /* Prevent shrinking */
+  position: relative; /* Ensure proper positioning */
+  background-color: #2f3336; /* Fallback background */
 }
 
-.avatar-image {
+.user-avatar img {
   width: 100%;
   height: 100%;
   border-radius: 50%;
   object-fit: cover;
+  display: block; /* Remove any inline spacing */
+  position: absolute; /* Absolute positioning for better control */
+  top: 0;
+  left: 0;
+  max-width: 100%; /* Ensure it doesn't exceed container */
+  max-height: 100%; /* Ensure it doesn't exceed container */
 }
 
 .user-details {

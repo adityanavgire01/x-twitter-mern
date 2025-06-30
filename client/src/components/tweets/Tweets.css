@@ -154,6 +154,146 @@
   cursor: not-allowed;
 }
 
+/* Reply Section Styles for TweetCard */
+.reply-section {
+  margin-top: 1rem;
+  border-top: 1px solid #2f3336;
+  background-color: rgba(255, 255, 255, 0.02);
+  border-radius: 0 0 16px 16px;
+  padding: 1rem;
+  animation: slideDown 0.2s ease-out;
+}
+
+.reply-header {
+  margin-bottom: 1rem;
+}
+
+.reply-to {
+  color: #71767b;
+  font-size: 0.9rem;
+}
+
+.reply-username {
+  color: rgb(29, 155, 240);
+}
+
+.reply-compose {
+  display: flex;
+  gap: 0.75rem;
+  align-items: flex-start;
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.reply-section .reply-form {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.reply-section textarea {
+  width: 100%;
+  background-color: transparent;
+  border: 1px solid #2f3336;
+  border-radius: 12px;
+  color: #e7e9ea;
+  resize: none;
+  min-height: 80px;
+  font-size: 1rem;
+  padding: 0.75rem;
+  outline: none;
+  transition: border-color 0.2s;
+  font-family: inherit;
+  line-height: 1.4;
+  box-sizing: border-box;
+}
+
+.reply-section textarea:focus {
+  border-color: rgb(29, 155, 240);
+  box-shadow: 0 0 0 1px rgb(29, 155, 240);
+}
+
+.reply-section textarea::placeholder {
+  color: #71767b;
+}
+
+.reply-section .reply-actions {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 0.5rem;
+}
+
+.reply-section .character-count {
+  color: #71767b;
+  font-size: 0.9rem;
+}
+
+.reply-section .character-count.warning {
+  color: rgb(255, 212, 0);
+}
+
+.reply-section .character-count.danger {
+  color: rgb(244, 33, 46);
+}
+
+.reply-buttons {
+  display: flex;
+  gap: 0.75rem;
+  align-items: center;
+}
+
+.reply-section .cancel-button {
+  background-color: transparent;
+  color: #e7e9ea;
+  border: 1px solid #536471;
+  padding: 0.5rem 1.25rem;
+  border-radius: 9999px;
+  font-weight: bold;
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: all 0.2s;
+  min-width: 70px;
+}
+
+.reply-section .cancel-button:hover {
+  background-color: rgba(239, 243, 244, 0.1);
+  border-color: #71767b;
+}
+
+.reply-section .reply-button {
+  background-color: rgb(29, 155, 240);
+  color: white;
+  border: none;
+  padding: 0.5rem 1.25rem;
+  border-radius: 9999px;
+  font-weight: bold;
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: background-color 0.2s;
+  min-width: 70px;
+}
+
+.reply-section .reply-button:hover:not(:disabled) {
+  background-color: rgb(26, 140, 216);
+}
+
+.reply-section .reply-button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  background-color: rgb(29, 155, 240);
+}
+
 /* CreateTweet Component Styles */
 .create-tweet {
   border: 1px solid #2f3336;
@@ -216,10 +356,33 @@
   cursor: not-allowed;
 }
 
+/* Home Layout Styles */
+.home-layout {
+  position: relative;
+  min-height: 100vh;
+}
+
+.main-feed {
+  width: 600px;
+  margin: 0 auto; /* Exactly center the feed */
+  position: relative;
+  z-index: 1;
+}
+
+.right-panel {
+  width: 320px;
+  position: fixed;
+  top: 80px;
+  left: calc(50% + 300px + 2rem); /* Position to the right of centered feed */
+  height: fit-content;
+  max-height: calc(100vh - 100px);
+  overflow-y: auto;
+  z-index: 1;
+}
+
 /* TweetFeed Component Styles */
 .tweet-feed {
-  max-width: 600px;
-  margin: 0 auto;
+  background-color: #000;
   border-left: 1px solid #2f3336;
   border-right: 1px solid #2f3336;
 }
@@ -504,4 +667,43 @@
   object-fit: cover;
   min-height: 150px;
   background-color: #2f3336;
+}
+
+/* Responsive design for home layout */
+@media (max-width: 1280px) {
+  .right-panel {
+    display: none; /* Hide right panel when there's not enough space */
+  }
+}
+
+@media (max-width: 1080px) {
+  .main-feed {
+    width: 100%;
+    max-width: 600px;
+    margin: 0 auto;
+    padding: 0 1rem;
+  }
+}
+
+@media (max-width: 640px) {
+  .main-feed {
+    width: 100%;
+    max-width: 100%;
+    padding: 0;
+  }
+}
+
+@media (max-width: 640px) {
+  .tweet-feed {
+    border-left: none;
+    border-right: none;
+  }
+}
+
+/* For very large screens, adjust right panel position */
+@media (min-width: 1400px) {
+  .right-panel {
+    width: 350px;
+    left: calc(50% + 300px + 3rem); /* Adjust for larger screens */
+  }
 } 
