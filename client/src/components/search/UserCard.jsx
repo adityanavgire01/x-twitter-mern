@@ -1,44 +1,32 @@
 import { Link } from 'react-router-dom';
 import { useAuth } from '../../context/auth';
-import axios from '../../config/axios';
-import { useState } from 'react';
+import { DEFAULT_AVATAR } from '../../constants/defaults.jsx';
 import './Search.css';
 
-const UserCard = ({ user }) => {
-  const { user: currentUser } = useAuth();
-  const [isFollowing, setIsFollowing] = useState(
-    user.followers?.includes(currentUser?._id)
-  );
-
-  const handleFollow = async () => {
-    try {
-      await axios.post(`/users/${user.username}/follow`);
-      setIsFollowing(!isFollowing);
-    } catch (error) {
-      console.error('Error following user:', error);
-    }
-  };
+const UserCard = ({ user: searchedUser, onFollow }) => {
+  const { user } = useAuth();
+  const isFollowing = searchedUser.followers?.includes(user._id);
+  const isCurrentUser = searchedUser._id === user._id;
 
   return (
     <div className="user-card">
-      <Link to={`/${user.username}`} className="user-info">
+      <Link to={`/profile/${searchedUser.username}`} className="user-info">
         <div className="user-avatar">
-          <img
-            src={user.profileImage || 'https://via.placeholder.com/50'}
-            alt={user.username}
-            className="avatar-image"
+          <img 
+            src={searchedUser.profileImage || DEFAULT_AVATAR} 
+            alt={searchedUser.username} 
           />
         </div>
         <div className="user-details">
-          <div className="user-name">{user.name}</div>
-          <div className="user-username">@{user.username}</div>
-          <div className="user-bio">{user.bio}</div>
+          <h3 className="user-name">{searchedUser.name}</h3>
+          <p className="user-username">@{searchedUser.username}</p>
+          <p className="user-bio">{searchedUser.bio || 'No bio yet'}</p>
         </div>
       </Link>
-      {currentUser?._id !== user._id && (
-        <button
+      {!isCurrentUser && (
+        <button 
           className={`follow-button ${isFollowing ? 'following' : ''}`}
-          onClick={handleFollow}
+          onClick={() => onFollow(searchedUser._id)}
         >
           {isFollowing ? 'Following' : 'Follow'}
         </button>

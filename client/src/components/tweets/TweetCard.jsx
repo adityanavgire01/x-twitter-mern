@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/auth';
+import { DEFAULT_AVATAR } from '../../constants/defaults.jsx';
 import './Tweets.css';
 
 const TweetCard = ({ tweet, onLike, onRetweet, onReply, showActions = true }) => {
@@ -44,16 +45,11 @@ const TweetCard = ({ tweet, onLike, onRetweet, onReply, showActions = true }) =>
       <div className="tweet-header">
         <Link to={`/profile/${tweet.author._id}`} className="author-link" onClick={e => e.stopPropagation()}>
           <div className="profile-pic">
-            {tweet.author.avatar ? (
-              <img 
-                src={tweet.author.avatar} 
-                alt={tweet.author.username} 
-              />
-            ) : (
-              <div className="default-avatar">
-                {tweet.author.username?.charAt(0).toUpperCase()}
-              </div>
-            )}
+            <img 
+              src={tweet.author.profileImage || DEFAULT_AVATAR} 
+              alt={tweet.author.username} 
+              className="author-avatar"
+            />
           </div>
           <div className="tweet-author-info">
             <span className="author-name">{tweet.author.name}</span>
@@ -83,26 +79,33 @@ const TweetCard = ({ tweet, onLike, onRetweet, onReply, showActions = true }) =>
       </div>
 
       {showActions && (
-        <div className="tweet-actions" onClick={e => e.stopPropagation()}>
+        <div className="tweet-actions">
           <button 
             className={`action-button reply-button ${isReplying ? 'active' : ''}`}
-            onClick={() => setIsReplying(!isReplying)}
+            onClick={(e) => {
+              e.stopPropagation();
+              setIsReplying(!isReplying);
+            }}
           >
             <i className="far fa-comment"></i>
             <span>{tweet.replies?.length || 0}</span>
           </button>
-
           <button 
-            className={`action-button retweet-button ${tweet.retweets?.includes(user?._id) ? 'active' : ''}`}
-            onClick={() => onRetweet(tweet._id)}
+            className={`action-button retweet-button ${tweet.retweets?.includes(user._id) ? 'active' : ''}`}
+            onClick={(e) => {
+              e.stopPropagation();
+              onRetweet(tweet._id);
+            }}
           >
             <i className="fas fa-retweet"></i>
             <span>{tweet.retweets?.length || 0}</span>
           </button>
-
           <button 
-            className={`action-button like-button ${tweet.likes?.includes(user?._id) ? 'active' : ''}`}
-            onClick={() => onLike(tweet._id)}
+            className={`action-button like-button ${tweet.likes?.includes(user._id) ? 'active' : ''}`}
+            onClick={(e) => {
+              e.stopPropagation();
+              onLike(tweet._id);
+            }}
           >
             <i className="far fa-heart"></i>
             <span>{tweet.likes?.length || 0}</span>
@@ -111,20 +114,22 @@ const TweetCard = ({ tweet, onLike, onRetweet, onReply, showActions = true }) =>
       )}
 
       {isReplying && (
-        <form onSubmit={handleReplySubmit} className="reply-form" onClick={e => e.stopPropagation()}>
-          <textarea
-            value={replyContent}
-            onChange={(e) => setReplyContent(e.target.value)}
-            placeholder="Tweet your reply"
-            maxLength={280}
-          />
-          <div className="reply-actions">
-            <span className="character-count">{280 - replyContent.length}</span>
-            <button type="submit" disabled={!replyContent.trim()}>
-              Reply
-            </button>
-          </div>
-        </form>
+        <div className="reply-section" onClick={e => e.stopPropagation()}>
+          <form onSubmit={handleReplySubmit}>
+            <textarea
+              value={replyContent}
+              onChange={(e) => setReplyContent(e.target.value)}
+              placeholder="Tweet your reply"
+              maxLength={280}
+            />
+            <div className="reply-actions">
+              <span className="character-count">{280 - replyContent.length}</span>
+              <button type="submit" disabled={!replyContent.trim()}>
+                Reply
+              </button>
+            </div>
+          </form>
+        </div>
       )}
     </div>
   );

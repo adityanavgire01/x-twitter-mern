@@ -156,4 +156,21 @@ router.get('/:tweetId/replies', auth, async (req, res) => {
   }
 });
 
+// Get a single tweet by ID
+router.get('/:tweetId', auth, async (req, res) => {
+  try {
+    const tweet = await Tweet.findById(req.params.tweetId)
+      .populate('author', 'username displayName profileImage');
+    
+    if (!tweet) {
+      return res.status(404).json({ message: 'Tweet not found' });
+    }
+    
+    res.json(tweet);
+  } catch (error) {
+    console.error('Error fetching tweet:', error);
+    res.status(500).json({ message: 'Error fetching tweet' });
+  }
+});
+
 module.exports = router; 

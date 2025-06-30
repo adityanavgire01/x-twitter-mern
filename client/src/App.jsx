@@ -60,7 +60,7 @@ function App() {
                 } 
               />
               <Route 
-                path="/:username" 
+                path="/profile/:identifier" 
                 element={
                   <PrivateRoute>
                     <Profile />
@@ -77,7 +77,7 @@ function App() {
               />
             </Routes>
           </main>
-      </div>
+        </div>
       </AuthProvider>
     </Router>
   );

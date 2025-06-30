@@ -28,9 +28,13 @@ const TweetFeed = () => {
     fetchTweets();
   }, []);
 
-  const handleCreateTweet = async (content) => {
+  const handleCreateTweet = async (formData) => {
     try {
-      const response = await axios.post('/tweets', { content });
+      const response = await axios.post('/tweets', formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data'
+        }
+      });
       setTweets([response.data, ...tweets]);
     } catch (error) {
       setError('Failed to create tweet. Please try again.');

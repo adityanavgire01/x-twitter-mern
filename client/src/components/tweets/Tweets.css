@@ -21,6 +21,15 @@
   height: 40px;
   border-radius: 50%;
   margin-right: 0.75rem;
+  overflow: hidden;
+  object-fit: cover;
+}
+
+.author-avatar {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 50%;
 }
 
 .tweet-author-info {
@@ -308,6 +317,14 @@
 .reply-compose .profile-pic {
   width: 40px;
   height: 40px;
+  border-radius: 50%;
+  overflow: hidden;
+}
+
+.reply-compose .profile-pic img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
   border-radius: 50%;
 }
 
