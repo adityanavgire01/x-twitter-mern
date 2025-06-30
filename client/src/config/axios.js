@@ -21,38 +21,70 @@ instance.interceptors.request.use(
   }
 );
 
-// Add a response interceptor to handle media URLs
+// Add a response interceptor to handle media URLs and profile images
 instance.interceptors.response.use(
   (response) => {
-    const transformMediaUrls = (data) => {
+    const transformUrls = (data) => {
       if (!data) return data;
 
-      // If it's a single tweet
-      if (data.media && Array.isArray(data.media)) {
-        data.media = data.media.map(url => 
-          url.startsWith('http') ? url : `${BASE_URL}${url}`
-        );
+      // Helper function to transform a single URL
+      const transformUrl = (url) => {
+        if (!url || url.startsWith('http')) return url;
+        return `${BASE_URL}${url}`;
+      };
+
+      // Handle single objects (tweets, users, etc.)
+      if (typeof data === 'object' && !Array.isArray(data)) {
+        const transformed = { ...data };
+        
+        // Transform tweet media
+        if (transformed.media && Array.isArray(transformed.media)) {
+          transformed.media = transformed.media.map(transformUrl);
+        }
+        
+        // Transform profile images
+        if (transformed.profileImage) {
+          transformed.profileImage = transformUrl(transformed.profileImage);
+        }
+        
+        // Transform author profile images in tweets
+        if (transformed.author && transformed.author.profileImage) {
+          transformed.author.profileImage = transformUrl(transformed.author.profileImage);
+        }
+
+        return transformed;
       }
 
-      // If it's an array of tweets
+      // Handle arrays of objects
       if (Array.isArray(data)) {
         return data.map(item => {
-          if (item && item.media && Array.isArray(item.media)) {
-            return {
-              ...item,
-              media: item.media.map(url =>
-                url.startsWith('http') ? url : `${BASE_URL}${url}`
-              )
-            };
+          if (!item || typeof item !== 'object') return item;
+          
+          const transformed = { ...item };
+          
+          // Transform tweet media
+          if (transformed.media && Array.isArray(transformed.media)) {
+            transformed.media = transformed.media.map(transformUrl);
           }
-          return item;
+          
+          // Transform profile images
+          if (transformed.profileImage) {
+            transformed.profileImage = transformUrl(transformed.profileImage);
+          }
+          
+          // Transform author profile images
+          if (transformed.author && transformed.author.profileImage) {
+            transformed.author.profileImage = transformUrl(transformed.author.profileImage);
+          }
+          
+          return transformed;
         });
       }
 
       return data;
     };
 
-    response.data = transformMediaUrls(response.data);
+    response.data = transformUrls(response.data);
     return response;
   },
   (error) => {
