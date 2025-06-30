@@ -3,7 +3,14 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/auth';
 import axios from '../../config/axios';
 import TweetCard from './TweetCard';
+import { DEFAULT_AVATAR } from '../../constants/defaults.jsx';
 import './Tweets.css';
+
+// Utility function to format profile image URLs
+const formatImageUrl = (url) => {
+  if (!url || url.startsWith('http')) return url;
+  return `http://localhost:5000${url}`;
+};
 
 const TweetDetail = () => {
   const { tweetId } = useParams();
@@ -110,8 +117,8 @@ const TweetDetail = () => {
 
       <div className="reply-compose">
         <img
-          src={user.profileImage || 'https://via.placeholder.com/40'}
-          alt={user.username}
+          src={formatImageUrl(user?.profileImage) || DEFAULT_AVATAR}
+          alt={user?.username}
           className="profile-pic"
         />
         <form onSubmit={handleReply} className="reply-form">

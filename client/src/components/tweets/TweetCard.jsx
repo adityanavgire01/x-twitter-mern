@@ -4,6 +4,12 @@ import { useAuth } from '../../context/auth';
 import { DEFAULT_AVATAR } from '../../constants/defaults.jsx';
 import './Tweets.css';
 
+// Utility function to format profile image URLs
+const formatImageUrl = (url) => {
+  if (!url || url.startsWith('http')) return url;
+  return `http://localhost:5000${url}`;
+};
+
 const TweetCard = ({ tweet, onLike, onRetweet, onReply, showActions = true }) => {
   const [isReplying, setIsReplying] = useState(false);
   const [replyContent, setReplyContent] = useState('');
@@ -13,6 +19,14 @@ const TweetCard = ({ tweet, onLike, onRetweet, onReply, showActions = true }) =>
   const formatDate = (dateString) => {
     const options = { month: 'short', day: 'numeric' };
     return new Date(dateString).toLocaleDateString('en-US', options);
+  };
+
+  // Use updated profile image from auth context if this tweet belongs to current user
+  const getAuthorProfileImage = () => {
+    if (user && (tweet.author._id === user._id || tweet.author.username === user.username)) {
+      return formatImageUrl(user.profileImage) || DEFAULT_AVATAR;
+    }
+    return tweet.author.profileImage || DEFAULT_AVATAR;
   };
 
   const handleReplySubmit = (e) => {
@@ -46,13 +60,13 @@ const TweetCard = ({ tweet, onLike, onRetweet, onReply, showActions = true }) =>
         <Link to={`/profile/${tweet.author._id}`} className="author-link" onClick={e => e.stopPropagation()}>
           <div className="profile-pic">
             <img 
-              src={tweet.author.profileImage || DEFAULT_AVATAR} 
+              src={getAuthorProfileImage()} 
               alt={tweet.author.username} 
               className="author-avatar"
             />
           </div>
           <div className="tweet-author-info">
-            <span className="author-name">{tweet.author.name}</span>
+            <span className="author-name">{tweet.author.displayName || tweet.author.name}</span>
             <span className="author-username">@{tweet.author.username}</span>
             <span className="tweet-date">· {formatDate(tweet.createdAt)}</span>
           </div>
@@ -115,20 +129,54 @@ const TweetCard = ({ tweet, onLike, onRetweet, onReply, showActions = true }) =>
 
       {isReplying && (
         <div className="reply-section" onClick={e => e.stopPropagation()}>
-          <form onSubmit={handleReplySubmit}>
-            <textarea
-              value={replyContent}
-              onChange={(e) => setReplyContent(e.target.value)}
-              placeholder="Tweet your reply"
-              maxLength={280}
-            />
-            <div className="reply-actions">
-              <span className="character-count">{280 - replyContent.length}</span>
-              <button type="submit" disabled={!replyContent.trim()}>
-                Reply
-              </button>
+          <div className="reply-header">
+            <div className="reply-to">
+              Replying to <span className="reply-username">@{tweet.author.username}</span>
             </div>
-          </form>
+          </div>
+          <div className="reply-compose">
+            <div className="profile-pic">
+              <img 
+                src={formatImageUrl(user?.profileImage) || DEFAULT_AVATAR} 
+                alt={user?.username} 
+              />
+            </div>
+            <form onSubmit={handleReplySubmit} className="reply-form">
+              <textarea
+                value={replyContent}
+                onChange={(e) => setReplyContent(e.target.value)}
+                placeholder="Tweet your reply"
+                maxLength={280}
+                autoFocus
+              />
+                             <div className="reply-actions">
+                 <span className={`character-count ${
+                   280 - replyContent.length < 20 ? 'warning' : ''
+                 } ${280 - replyContent.length < 0 ? 'danger' : ''}`}>
+                   {280 - replyContent.length}
+                 </span>
+                 <div className="reply-buttons">
+                   <button 
+                     type="button" 
+                     className="cancel-button"
+                     onClick={() => {
+                       setIsReplying(false);
+                       setReplyContent('');
+                     }}
+                   >
+                     Cancel
+                   </button>
+                   <button 
+                     type="submit" 
+                     className="reply-button"
+                     disabled={!replyContent.trim() || replyContent.length > 280}
+                   >
+                     Reply
+                   </button>
+                 </div>
+               </div>
+            </form>
+          </div>
         </div>
       )}
     </div>

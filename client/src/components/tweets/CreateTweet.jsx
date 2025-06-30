@@ -3,6 +3,12 @@ import { useAuth } from '../../context/auth';
 import { DEFAULT_AVATAR } from '../../constants/defaults.jsx';
 import './Tweets.css';
 
+// Utility function to format profile image URLs
+const formatImageUrl = (url) => {
+  if (!url || url.startsWith('http')) return url;
+  return `http://localhost:5000${url}`;
+};
+
 const CreateTweet = ({ onTweetCreate }) => {
   const [content, setContent] = useState('');
   const [selectedFiles, setSelectedFiles] = useState([]);
@@ -62,7 +68,7 @@ const CreateTweet = ({ onTweetCreate }) => {
     <div className="create-tweet">
       <div className="create-tweet-header">
         <img 
-          src={user?.profileImage || DEFAULT_AVATAR} 
+          src={formatImageUrl(user?.profileImage) || DEFAULT_AVATAR} 
           alt={user?.username} 
           className="profile-pic"
         />

@@ -3,6 +3,12 @@ import { useAuth } from '../../context/auth';
 import { DEFAULT_AVATAR } from '../../constants/defaults.jsx';
 import './Navbar.css';
 
+// Utility function to format profile image URLs
+const formatImageUrl = (url) => {
+  if (!url || url.startsWith('http')) return url;
+  return `http://localhost:5000${url}`;
+};
+
 const Navbar = () => {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
@@ -40,12 +46,12 @@ const Navbar = () => {
         <div className="nav-user">
           <div className="user-info" onClick={() => navigate(`/profile/${user.username}`)}>
             <img
-              src={user.profileImage || DEFAULT_AVATAR}
-              alt={user.name}
+              src={formatImageUrl(user.profileImage) || DEFAULT_AVATAR}
+              alt={user.displayName || user.name}
               className="user-avatar"
             />
             <div className="user-details">
-              <span className="user-name">{user.name}</span>
+              <span className="user-name">{user.displayName || user.name}</span>
               <span className="user-username">@{user.username}</span>
             </div>
           </div>
