@@ -5,6 +5,46 @@ const auth = require('../middleware/auth');
 const Tweet = require('../models/Tweet');
 const upload = require('../utils/mediaUpload');
 
+// Get suggested users (random registered users excluding followed ones)
+// This must come before /:identifier route to avoid conflicts
+router.get('/suggested', auth, async (req, res) => {
+  try {
+    const { limit = 5 } = req.query;
+    const currentUser = await User.findById(req.user._id);
+    
+    // Get all users that current user is not following (excluding themselves)
+    const allUnfollowedUsers = await User.find({
+      _id: { 
+        $nin: [...(currentUser.following || []), currentUser._id] 
+      }
+    })
+    .select('username displayName profileImage bio followers')
+    .lean(); // Use lean() for better performance
+
+    // If no unfollowed users, return empty result
+    if (allUnfollowedUsers.length === 0) {
+      return res.json({
+        users: [],
+        hasMore: false,
+        total: 0
+      });
+    }
+
+    // Randomly shuffle the array and take the requested limit
+    const shuffled = allUnfollowedUsers.sort(() => 0.5 - Math.random());
+    const suggestedUsers = shuffled.slice(0, parseInt(limit));
+
+    res.json({
+      users: suggestedUsers,
+      hasMore: allUnfollowedUsers.length > parseInt(limit),
+      total: allUnfollowedUsers.length
+    });
+  } catch (error) {
+    console.error('Error fetching suggested users:', error);
+    res.status(500).json({ message: 'Error fetching suggested users' });
+  }
+});
+
 // Get user profile by username or ID
 router.get('/:identifier', auth, async (req, res) => {
     try {
