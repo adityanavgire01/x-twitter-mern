@@ -62,7 +62,7 @@ export const AuthProvider = ({ children }) => {
     }
 
     try {
-      const response = await axios.get('/auth/profile');
+      const response = await axios.get('/auth/me');
       setUser(response.data);
     } catch {
       localStorage.removeItem('token');
