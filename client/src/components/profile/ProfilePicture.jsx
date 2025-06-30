@@ -44,10 +44,28 @@ const ProfilePicture = ({ profile, onUpdate }) => {
         }
       });
 
-      // Update local state and context
+            // Update local state and context
       const newProfileImage = response.data.profileImage;
+      
+      // Update local profile state
       onUpdate(newProfileImage);
+      
+      // Update auth context with the new profile image
       updateUser({ profileImage: newProfileImage });
+      
+      // Force a re-fetch of the current user to ensure navbar updates
+      setTimeout(() => {
+        // This will trigger a re-fetch from the auth context
+        const token = localStorage.getItem('token');
+        if (token) {
+          // Re-fetch user profile to ensure everything is in sync
+          axios.get('/auth/me')
+            .then(response => {
+              updateUser(response.data);
+            })
+            .catch(error => console.error('Error refreshing profile:', error));
+        }
+      }, 500); // Small delay to ensure upload is processed
       
     } catch (error) {
       console.error('Error uploading profile picture:', error);
