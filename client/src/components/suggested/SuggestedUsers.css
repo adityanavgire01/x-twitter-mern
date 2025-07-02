@@ -181,4 +181,15 @@
     padding: 0.4rem 0.8rem;
     font-size: 0.85rem;
   }
+}
+
+/* Who to Follow Panel Styles */
+.suggested-users-panel {
+  width: 100%;
+  max-width: 320px;
+  background-color: #000;
+  border: 1px solid #2f3336;
+  border-radius: 16px;
+  overflow: hidden;
+  margin-top: 20px; /* Space from navbar */
 } 

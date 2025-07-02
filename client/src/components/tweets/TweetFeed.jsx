@@ -4,6 +4,7 @@ import axios from '../../config/axios';
 import CreateTweet from './CreateTweet';
 import TweetCard from './TweetCard';
 import SuggestedUsers from '../suggested/SuggestedUsers';
+import MessagesPanel from '../messages/MessagesPanel';
 import './Tweets.css';
 
 const TweetFeed = () => {
@@ -98,6 +99,10 @@ const TweetFeed = () => {
 
   return (
     <div className="home-layout">
+      <div className="left-panel">
+        <MessagesPanel />
+      </div>
+      
       <div className="main-feed">
         <div className="tweet-feed">
           {error && <div className="error-message">{error}</div>}

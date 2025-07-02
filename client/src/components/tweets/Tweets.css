@@ -360,11 +360,27 @@
 .home-layout {
   position: relative;
   min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  gap: 2rem;
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 0 1rem;
+}
+
+.left-panel {
+  width: 320px;
+  position: fixed;
+  top: 100px;
+  left: calc(50% - 700px);
+  height: fit-content;
+  max-height: calc(100vh - 120px);
+  z-index: 1;
 }
 
 .main-feed {
   width: 600px;
-  margin: 0 auto; /* Exactly center the feed */
+  margin: 0 auto;
   position: relative;
   z-index: 1;
 }
@@ -372,10 +388,10 @@
 .right-panel {
   width: 320px;
   position: fixed;
-  top: 80px;
-  left: calc(50% + 300px + 2rem); /* Position to the right of centered feed */
+  top: 100px;
+  left: calc(50% + 300px + 2rem);
   height: fit-content;
-  max-height: calc(100vh - 100px);
+  max-height: calc(100vh - 120px);
   overflow-y: auto;
   z-index: 1;
 }
@@ -670,13 +686,33 @@
 }
 
 /* Responsive design for home layout */
+@media (max-width: 1400px) {
+  .left-panel {
+    left: calc(50% - 650px);
+    width: 280px;
+  }
+  
+  .right-panel {
+    left: calc(50% + 300px + 1.5rem);
+    width: 280px;
+  }
+}
+
 @media (max-width: 1280px) {
   .right-panel {
     display: none; /* Hide right panel when there's not enough space */
   }
+  
+  .left-panel {
+    left: calc(50% - 400px);
+  }
 }
 
 @media (max-width: 1080px) {
+  .left-panel {
+    display: none; /* Hide left panel on smaller screens */
+  }
+  
   .main-feed {
     width: 100%;
     max-width: 600px;
@@ -700,10 +736,28 @@
   }
 }
 
-/* For very large screens, adjust right panel position */
-@media (min-width: 1400px) {
+/* For very large screens, adjust panel positions */
+@media (min-width: 1500px) {
+  .left-panel {
+    left: calc(50% - 750px);
+    width: 350px;
+  }
+  
   .right-panel {
     width: 350px;
-    left: calc(50% + 300px + 3rem); /* Adjust for larger screens */
+    left: calc(50% + 300px + 3rem);
   }
+}
+
+.message-button {
+  color: #71767b;
+  transition: color 0.2s;
+}
+
+.message-button:hover {
+  color: #1d9bf0;
+}
+
+.message-button i {
+  font-size: 1.125rem;
 } 
