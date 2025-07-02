@@ -199,19 +199,27 @@ router.post('/:userId/unfollow', auth, async (req, res) => {
 // Update user profile
 router.put('/profile', auth, async (req, res) => {
     try {
-        const { displayName, bio } = req.body;
+        const { name, displayName, bio, location, website } = req.body;
         const user = await User.findById(req.user._id);
 
         if (!user) {
             return res.status(404).json({ message: "User not found" });
         }
 
+        // Handle both 'name' and 'displayName' field names for compatibility
+        if (name) user.displayName = name;
         if (displayName) user.displayName = displayName;
-        if (bio) user.bio = bio;
+        if (bio !== undefined) user.bio = bio;
+        if (location !== undefined) user.location = location;
+        if (website !== undefined) user.website = website;
 
         await user.save();
-        res.json(user);
+        
+        // Return user without password
+        const updatedUser = await User.findById(user._id).select('-password');
+        res.json(updatedUser);
     } catch (error) {
+        console.error('Error updating profile:', error);
         res.status(500).json({ message: "Error updating profile" });
     }
 });

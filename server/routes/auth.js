@@ -40,7 +40,9 @@ router.post('/register', async (req, res) => {
         email: user.email,
         displayName: user.displayName,
         profileImage: user.profileImage,
-        bio: user.bio
+        bio: user.bio,
+        location: user.location,
+        website: user.website
       }
     });
   } catch (error) {
@@ -80,7 +82,9 @@ router.post('/login', async (req, res) => {
         email: user.email,
         displayName: user.displayName,
         profileImage: user.profileImage,
-        bio: user.bio
+        bio: user.bio,
+        location: user.location,
+        website: user.website
       }
     });
   } catch (error) {
@@ -88,13 +92,17 @@ router.post('/login', async (req, res) => {
   }
 });
 
-// Get current user
+// Get current user profile
 router.get('/me', auth, async (req, res) => {
   try {
     const user = await User.findById(req.user._id).select('-password');
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
     res.json(user);
   } catch (error) {
-    res.status(500).json({ message: 'Error in fetching user' });
+    console.error('Error fetching current user:', error);
+    res.status(500).json({ message: 'Error fetching user profile' });
   }
 });
 

@@ -115,6 +115,25 @@
   border-color: rgb(244, 33, 46, 0.4);
 }
 
+.edit-profile-button {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  background-color: transparent;
+  color: #e7e9ea;
+  border: 1px solid #536471;
+  padding: 0.5rem 1.25rem;
+  border-radius: 9999px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.edit-profile-button:hover {
+  background-color: rgba(231, 233, 234, 0.1);
+  border-color: #e7e9ea;
+}
+
 .profile-tweets {
   border-top: 1px solid #2f3336;
 }
@@ -271,4 +290,179 @@
 
 .image-modal-close:hover {
   background: rgba(255, 255, 255, 0.2);
+}
+
+.profile-additional-info {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+  color: #71767b;
+}
+
+.profile-location,
+.profile-website {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.9rem;
+}
+
+.profile-website a {
+  color: #1d9bf0;
+  text-decoration: none;
+}
+
+.profile-website a:hover {
+  text-decoration: underline;
+}
+
+/* Edit Profile Modal Styles */
+.edit-profile-modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.75);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+.modal-content {
+  background-color: #000;
+  border: 1px solid #2f3336;
+  border-radius: 16px;
+  width: 90%;
+  max-width: 500px;
+  max-height: 80vh;
+  overflow-y: auto;
+}
+
+.modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1rem 1.5rem;
+  border-bottom: 1px solid #2f3336;
+}
+
+.modal-header h2 {
+  color: #e7e9ea;
+  margin: 0;
+  font-size: 1.25rem;
+  font-weight: bold;
+}
+
+.close-button {
+  background: none;
+  border: none;
+  color: #e7e9ea;
+  cursor: pointer;
+  padding: 0.5rem;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background-color 0.2s;
+}
+
+.close-button:hover {
+  background-color: rgba(231, 233, 234, 0.1);
+}
+
+.close-button i {
+  font-size: 1.1rem;
+}
+
+.form-group {
+  margin-bottom: 1.5rem;
+}
+
+.form-group label {
+  display: block;
+  color: #e7e9ea;
+  margin-bottom: 0.5rem;
+  font-weight: 500;
+}
+
+.form-group input,
+.form-group textarea {
+  width: 100%;
+  background-color: transparent;
+  border: 1px solid #2f3336;
+  border-radius: 4px;
+  padding: 0.75rem;
+  color: #e7e9ea;
+  font-size: 1rem;
+  transition: border-color 0.2s;
+}
+
+.form-group input:focus,
+.form-group textarea:focus {
+  outline: none;
+  border-color: #1d9bf0;
+}
+
+.form-group textarea {
+  resize: vertical;
+  min-height: 80px;
+}
+
+.modal-footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 1rem;
+  padding: 1.5rem;
+  border-top: 1px solid #2f3336;
+}
+
+.cancel-button {
+  background: none;
+  border: 1px solid #536471;
+  color: #e7e9ea;
+  padding: 0.5rem 1.5rem;
+  border-radius: 9999px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.cancel-button:hover {
+  background-color: rgba(231, 233, 234, 0.1);
+}
+
+.save-button {
+  background-color: #1d9bf0;
+  border: none;
+  color: #fff;
+  padding: 0.5rem 1.5rem;
+  border-radius: 9999px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.save-button:hover:not(:disabled) {
+  background-color: #1a8cd8;
+}
+
+.save-button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.edit-profile-modal form {
+  padding: 1.5rem;
+}
+
+.edit-profile-modal .error-message {
+  background-color: rgba(244, 33, 46, 0.1);
+  color: rgb(244, 33, 46);
+  padding: 0.75rem;
+  border-radius: 4px;
+  margin-bottom: 1rem;
+  text-align: center;
 } 

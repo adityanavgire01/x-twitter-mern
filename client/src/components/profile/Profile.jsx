@@ -4,16 +4,18 @@ import { useAuth } from '../../context/auth';
 import axios from '../../config/axios';
 import TweetCard from '../tweets/TweetCard';
 import ProfilePicture from './ProfilePicture';
+import EditProfile from './EditProfile';
 import { DEFAULT_PROFILE_IMAGE, DEFAULT_BANNER_IMAGE } from '../../constants/defaults.jsx';
 import './Profile.css';
 
 const Profile = () => {
   const { identifier } = useParams();
-  const { user: currentUser } = useAuth();
+  const { user: currentUser, updateUser } = useAuth();
   const [profile, setProfile] = useState(null);
   const [tweets, setTweets] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [stats, setStats] = useState({
     followers: 0,
     following: 0,
@@ -69,6 +71,19 @@ const Profile = () => {
       ...prev,
       profileImage
     }));
+  };
+
+  const handleProfileEdit = (updatedProfile) => {
+    // Update local profile state
+    setProfile(prev => ({
+      ...prev,
+      ...updatedProfile
+    }));
+    
+    // If this is the current user's profile, update auth context
+    if (currentUser && (currentUser._id === profile._id || currentUser.username === profile.username)) {
+      updateUser(updatedProfile);
+    }
   };
 
   const handleLike = async (tweetId) => {
@@ -145,13 +160,41 @@ const Profile = () => {
             <h1 className="profile-name">{profile.displayName || profile.name}</h1>
             <p className="profile-username">@{profile.username}</p>
             <p className="profile-bio">{profile.bio || 'No bio yet'}</p>
+            
+            {/* Location and Website */}
+            {(profile.location || profile.website) && (
+              <div className="profile-additional-info">
+                {profile.location && (
+                  <span className="profile-location">
+                    <i className="fas fa-map-marker-alt"></i>
+                    {profile.location}
+                  </span>
+                )}
+                {profile.website && (
+                  <span className="profile-website">
+                    <i className="fas fa-link"></i>
+                    <a href={profile.website} target="_blank" rel="noopener noreferrer">
+                      {profile.website}
+                    </a>
+                  </span>
+                )}
+              </div>
+            )}
+            
             <div className="profile-stats">
               <span><strong>{stats.following}</strong> Following</span>
               <span><strong>{stats.followers}</strong> Followers</span>
               <span><strong>{stats.tweets}</strong> Tweets</span>
             </div>
           </div>
-          {currentUser?._id !== profile._id && (
+          {currentUser?._id === profile._id ? (
+            <button
+              className="edit-profile-button"
+              onClick={() => setIsEditModalOpen(true)}
+            >
+              Edit Profile
+            </button>
+          ) : (
             <button
               className={`follow-button ${isFollowing ? 'following' : ''}`}
               onClick={handleFollow}
@@ -174,6 +217,15 @@ const Profile = () => {
           />
         ))}
       </div>
+
+      {/* Edit Profile Modal */}
+      {isEditModalOpen && (
+        <EditProfile
+          profile={profile}
+          onClose={() => setIsEditModalOpen(false)}
+          onUpdate={handleProfileEdit}
+        />
+      )}
     </div>
   );
 };

@@ -4,7 +4,7 @@ import './Profile.css';
 
 const EditProfile = ({ profile, onClose, onUpdate }) => {
   const [formData, setFormData] = useState({
-    name: profile.name || '',
+    name: profile.displayName || profile.name || '',
     bio: profile.bio || '',
     location: profile.location || '',
     website: profile.website || ''

@@ -31,6 +31,16 @@ const userSchema = new mongoose.Schema({
     default: '',
     maxlength: 160
   },
+  location: {
+    type: String,
+    default: '',
+    maxlength: 30
+  },
+  website: {
+    type: String,
+    default: '',
+    maxlength: 100
+  },
   profileImage: {
     type: String,
     default: ''
