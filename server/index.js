@@ -3,7 +3,6 @@ const mongoose = require('mongoose');
 const dotenv = require('dotenv');
 const cors = require('cors');
 const bodyParser = require('body-parser');
-const passport = require('passport');
 const path = require('path');
 
 // Import routes
@@ -23,11 +22,9 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 app.use(bodyParser.urlencoded({ extended: true }));
-app.use(passport.initialize());
 
 // Configure static file serving - this should come before routes
 const uploadsPath = path.join(__dirname, 'uploads');
-console.log('Uploads directory path:', uploadsPath); // Debug log
 app.use('/uploads', express.static(uploadsPath));
 
 // Routes

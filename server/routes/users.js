@@ -165,36 +165,7 @@ router.post('/:identifier/follow', auth, async (req, res) => {
     }
 });
 
-// Unfollow a user (This route is redundant with the follow/unfollow toggle above)
-router.post('/:userId/unfollow', auth, async (req, res) => {
-    try {
-        if (req.params.userId === req.user._id.toString()) {
-            return res.status(400).json({ message: "You cannot unfollow yourself" });
-        }
 
-        const userToUnfollow = await User.findById(req.params.userId);
-        const currentUser = await User.findById(req.user._id);
-
-        if (!userToUnfollow || !currentUser) {
-            return res.status(404).json({ message: "User not found" });
-        }
-
-        if (!currentUser.following.includes(userToUnfollow._id)) {
-            return res.status(400).json({ message: "You are not following this user" });
-        }
-
-        // Remove from following and followers
-        currentUser.following = currentUser.following.filter(id => id.toString() !== userToUnfollow._id.toString());
-        userToUnfollow.followers = userToUnfollow.followers.filter(id => id.toString() !== currentUser._id.toString());
-
-        await currentUser.save();
-        await userToUnfollow.save();
-
-        res.json({ message: "Successfully unfollowed user" });
-    } catch (error) {
-        res.status(500).json({ message: "Error unfollowing user" });
-    }
-});
 
 // Update user profile
 router.put('/profile', auth, async (req, res) => {

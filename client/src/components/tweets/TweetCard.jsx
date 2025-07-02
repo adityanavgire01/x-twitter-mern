@@ -2,7 +2,6 @@ import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/auth';
 import { DEFAULT_AVATAR } from '../../constants/defaults.jsx';
-import NewMessageModal from '../messages/NewMessageModal';
 import './Tweets.css';
 
 // Utility function to format profile image URLs
@@ -14,7 +13,6 @@ const formatImageUrl = (url) => {
 const TweetCard = ({ tweet, onLike, onRetweet, onReply, showActions = true }) => {
   const [isReplying, setIsReplying] = useState(false);
   const [replyContent, setReplyContent] = useState('');
-  const [showMessageModal, setShowMessageModal] = useState(false);
   const { user } = useAuth();
   const navigate = useNavigate();
 
@@ -126,18 +124,6 @@ const TweetCard = ({ tweet, onLike, onRetweet, onReply, showActions = true }) =>
             <i className="far fa-heart"></i>
             <span>{tweet.likes?.length || 0}</span>
           </button>
-          {tweet.author._id !== user._id && (
-            <button 
-              className="action-button message-button"
-              onClick={(e) => {
-                e.stopPropagation();
-                setShowMessageModal(true);
-              }}
-              title="Send message"
-            >
-              <i className="far fa-envelope"></i>
-            </button>
-          )}
         </div>
       )}
 
@@ -192,19 +178,6 @@ const TweetCard = ({ tweet, onLike, onRetweet, onReply, showActions = true }) =>
             </form>
           </div>
         </div>
-      )}
-      
-      {/* Message Modal */}
-      {showMessageModal && (
-        <NewMessageModal
-          onClose={() => setShowMessageModal(false)}
-          onSelectRecipient={() => {
-            setShowMessageModal(false);
-            // You could add logic here to programmatically open the messages panel
-            // For now, we'll just close the modal and let the user use the left panel
-          }}
-          preSelectedUserId={tweet.author._id}
-        />
       )}
     </div>
   );
