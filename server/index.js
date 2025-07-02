@@ -11,6 +11,7 @@ const authRoutes = require('./routes/auth');
 const tweetRoutes = require('./routes/tweets');
 const userRoutes = require('./routes/users');
 const searchRoutes = require('./routes/search');
+const messageRoutes = require('./routes/messages');
 
 // Load environment variables
 dotenv.config();
@@ -34,6 +35,7 @@ app.use('/api/auth', authRoutes);
 app.use('/api/tweets', tweetRoutes);
 app.use('/api/users', userRoutes);
 app.use('/api/search', searchRoutes);
+app.use('/api/messages', messageRoutes);
 
 // Debug endpoint to check if server is serving files
 app.get('/test-uploads', (req, res) => {
