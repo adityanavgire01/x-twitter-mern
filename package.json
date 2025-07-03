@@ -1,0 +1,42 @@
+{
+  "name": "twitter-clone-mern",
+  "version": "1.0.0",
+  "description": "Full-stack Twitter clone built with MERN stack featuring real-time messaging",
+  "main": "server/index.js",
+  "engines": {
+    "node": ">=18.0.0",
+    "npm": ">=8.0.0"
+  },
+  "scripts": {
+    "dev": "concurrently \"npm run server\" \"npm run client\"",
+    "server": "cd server && npm run dev",
+    "client": "cd client && npm run dev",
+    "build": "cd client && npm install && npm run build",
+    "start": "cd server && npm start",
+    "heroku-postbuild": "npm run build",
+    "install-deps": "cd server && npm install && cd ../client && npm install",
+    "setup-env": "node scripts/setup-env.js",
+    "deploy-check": "npm run build && echo 'Build successful! Ready for deployment.'"
+  },
+  "keywords": [
+    "twitter",
+    "clone",
+    "social-media",
+    "mern",
+    "react",
+    "nodejs",
+    "mongodb",
+    "express",
+    "messaging",
+    "real-time"
+  ],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "concurrently": "^8.2.2"
+  },
+  "repository": {
+    "type": "git",
+    "url": "your-github-repo-url"
+  }
+} 

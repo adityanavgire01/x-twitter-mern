@@ -1,0 +1,16 @@
+node_modules
+npm-debug.log
+.env
+.env.local
+.env.example
+.git
+.gitignore
+README.md
+Dockerfile
+.dockerignore
+client/node_modules
+client/dist
+server/node_modules
+server/uploads
+.vscode
+*.log 
