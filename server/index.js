@@ -43,11 +43,33 @@ const limiter = rateLimit({
 });
 app.use('/api/', limiter);
 
-// CORS Configuration
+// CORS Configuration for split deployment (Vercel frontend + Railway backend)
 const corsOptions = {
-  origin: process.env.NODE_ENV === 'production' 
-    ? [process.env.CLIENT_URL] 
-    : ['http://localhost:3000', 'http://localhost:5173'],
+  origin: function (origin, callback) {
+    // Allow requests with no origin (like mobile apps or curl requests)
+    if (!origin) return callback(null, true);
+    
+    if (process.env.NODE_ENV === 'production') {
+      // In production, allow specific domain and all Vercel deployments
+      const allowedOrigins = [
+        process.env.CLIENT_URL,
+        /\.vercel\.app$/ // Allow all Vercel subdomains
+      ];
+      
+      const isAllowed = allowedOrigins.some(allowedOrigin => {
+        if (typeof allowedOrigin === 'string') {
+          return origin === allowedOrigin;
+        }
+        return allowedOrigin.test(origin);
+      });
+      
+      return callback(null, isAllowed);
+    } else {
+      // In development, allow localhost
+      const devOrigins = ['http://localhost:3000', 'http://localhost:5173'];
+      return callback(null, devOrigins.includes(origin));
+    }
+  },
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization'],

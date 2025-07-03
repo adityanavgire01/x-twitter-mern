@@ -1,15 +1,10 @@
 {
   "version": 2,
   "name": "twitter-clone-frontend",
-  "builds": [
-    {
-      "src": "client/package.json",
-      "use": "@vercel/static-build",
-      "config": {
-        "distDir": "dist"
-      }
-    }
-  ],
+  "buildCommand": "cd client && npm install && npm run build",
+  "outputDirectory": "client/dist",
+  "installCommand": "cd client && npm install",
+  "framework": "vite",
   "routes": [
     {
       "src": "/assets/(.*)",
@@ -20,7 +15,8 @@
       "dest": "/index.html"
     }
   ],
-  "buildCommand": "cd client && npm install && npm run build",
-  "outputDirectory": "client/dist",
-  "installCommand": "cd client && npm install"
+  "env": {
+    "VITE_API_URL": "@vite_api_url",
+    "VITE_BASE_URL": "@vite_base_url"
+  }
 } 
