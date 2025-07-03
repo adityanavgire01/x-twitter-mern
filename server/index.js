@@ -43,7 +43,7 @@ const limiter = rateLimit({
 });
 app.use('/api/', limiter);
 
-// CORS Configuration for split deployment (Vercel frontend + Railway backend)
+// CORS Configuration for split deployment (Vercel frontend + Render backend)
 const corsOptions = {
   origin: function (origin, callback) {
     // Allow requests with no origin (like mobile apps or curl requests)
