@@ -43,35 +43,9 @@ const limiter = rateLimit({
 });
 app.use('/api/', limiter);
 
-// CORS Configuration for split deployment (Frontend + Backend on Render/Vercel)
+// CORS Configuration - Temporarily allow all origins for debugging
 const corsOptions = {
-  origin: function (origin, callback) {
-    // Allow requests with no origin (like mobile apps or curl requests)
-    if (!origin) return callback(null, true);
-    
-    if (process.env.NODE_ENV === 'production') {
-      // In production, allow specific domains and deployment platforms
-      const allowedOrigins = [
-        process.env.CLIENT_URL,
-        'https://x-twitter-mern-frontend.onrender.com', // Render frontend
-        /\.vercel\.app$/, // Allow all Vercel subdomains
-        /\.onrender\.com$/ // Allow all Render subdomains
-      ];
-      
-      const isAllowed = allowedOrigins.some(allowedOrigin => {
-        if (typeof allowedOrigin === 'string') {
-          return origin === allowedOrigin;
-        }
-        return allowedOrigin.test(origin);
-      });
-      
-      return callback(null, isAllowed);
-    } else {
-      // In development, allow localhost
-      const devOrigins = ['http://localhost:3000', 'http://localhost:5173'];
-      return callback(null, devOrigins.includes(origin));
-    }
-  },
+  origin: true, // Allow all origins temporarily
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization'],
