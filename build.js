@@ -2,19 +2,27 @@
 
 const { execSync } = require('child_process');
 const path = require('path');
+const fs = require('fs');
 
 console.log('🚀 Starting Twitter Clone build process...');
 
+function installDependencies(dir, name) {
+  const lockFile = path.join(dir, 'package-lock.json');
+  const command = fs.existsSync(lockFile) ? 'npm ci' : 'npm install';
+  console.log(`📦 Installing ${name} dependencies with ${command}...`);
+  execSync(command, { stdio: 'inherit' });
+}
+
 try {
   // Install server dependencies
-  console.log('📦 Installing server dependencies...');
-  process.chdir(path.join(__dirname, 'server'));
-  execSync('npm ci', { stdio: 'inherit' });
+  const serverDir = path.join(__dirname, 'server');
+  process.chdir(serverDir);
+  installDependencies(serverDir, 'server');
   
   // Install client dependencies
-  console.log('📦 Installing client dependencies...');
-  process.chdir(path.join(__dirname, 'client'));
-  execSync('npm ci', { stdio: 'inherit' });
+  const clientDir = path.join(__dirname, 'client');
+  process.chdir(clientDir);
+  installDependencies(clientDir, 'client');
   
   // Build client
   console.log('🔨 Building client...');

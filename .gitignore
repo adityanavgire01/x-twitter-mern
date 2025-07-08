@@ -16,10 +16,8 @@ client/build/
 server/uploads/*
 !server/uploads/.gitkeep
 
-# Package locks (optional - uncomment if you want to track them)
-package-lock.json
-client/package-lock.json
-server/package-lock.json
+# Package locks - KEEP THESE for reproducible deployments
+# package-lock.json files should be committed for production apps
 
 # Logs
 *.log
