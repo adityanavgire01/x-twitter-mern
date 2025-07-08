@@ -46,5 +46,28 @@ const upload = multer({
   }
 });
 
-// Export the configured multer instance
-module.exports = upload; 
+// Error handling wrapper
+const uploadWithErrorHandling = (fieldname) => {
+  return (req, res, next) => {
+    upload.single(fieldname)(req, res, (err) => {
+      if (err instanceof multer.MulterError) {
+        console.error('Multer error:', err);
+        if (err.code === 'LIMIT_FILE_SIZE') {
+          return res.status(400).json({ message: 'File too large. Maximum size is 5MB.' });
+        }
+        if (err.code === 'LIMIT_FILE_COUNT') {
+          return res.status(400).json({ message: 'Too many files.' });
+        }
+        return res.status(400).json({ message: 'Upload error: ' + err.message });
+      } else if (err) {
+        console.error('Upload error:', err);
+        return res.status(400).json({ message: err.message });
+      }
+      next();
+    });
+  };
+};
+
+// Export both the original upload and the wrapper
+module.exports = upload;
+module.exports.uploadWithErrorHandling = uploadWithErrorHandling; 

@@ -207,11 +207,22 @@ router.post('/profile-image', auth, upload.single('profileImage'), async (req, r
       return res.status(404).json({ message: 'User not found' });
     }
 
-    // Update user's profile image
-    user.profileImage = `/uploads/${req.file.filename}`;
+    // Create full URL for the uploaded image
+    const baseUrl = process.env.NODE_ENV === 'production' 
+      ? `https://${req.get('host')}` 
+      : `http://localhost:${process.env.PORT || 5000}`;
+    
+    const imageUrl = `${baseUrl}/uploads/${req.file.filename}`;
+    
+    // Update user's profile image with full URL
+    user.profileImage = imageUrl;
     await user.save();
 
-    res.json({ profileImage: user.profileImage });
+    console.log('Profile image uploaded:', imageUrl);
+    res.json({ 
+      profileImage: user.profileImage,
+      message: 'Profile image uploaded successfully' 
+    });
   } catch (error) {
     console.error('Error uploading profile image:', error);
     res.status(500).json({ message: 'Error uploading profile image' });

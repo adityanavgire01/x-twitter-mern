@@ -1,0 +1,52 @@
+services:
+  # Backend API Service
+  - type: web
+    name: twitter-clone-backend
+    env: node
+    plan: free
+    buildCommand: npm run build
+    startCommand: npm start
+    healthCheckPath: /api/health
+    numInstances: 1
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: MONGODB_URI
+        sync: false
+      - key: JWT_SECRET
+        generateValue: true
+      - key: CLIENT_URL
+        fromService:
+          type: static
+          name: twitter-clone-frontend
+          property: url
+      - key: PORT
+        value: 5000
+      - key: UPLOAD_PATH
+        value: ./uploads
+      - key: MAX_FILE_SIZE
+        value: 5242880
+
+  # Frontend Static Site
+  - type: static
+    name: twitter-clone-frontend
+    buildCommand: cd client && npm install && npm run build
+    staticPublishPath: ./client/dist
+    routes:
+      - type: rewrite
+        source: /*
+        destination: /index.html
+    envVars:
+      - key: VITE_API_URL
+        fromService:
+          type: web
+          name: twitter-clone-backend
+          property: url
+          envVarKey: VITE_API_URL
+          format: "${url}/api"
+      - key: VITE_BASE_URL
+        fromService:
+          type: web
+          name: twitter-clone-backend
+          property: url
+``` 
