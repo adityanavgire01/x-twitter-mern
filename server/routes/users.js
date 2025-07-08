@@ -195,37 +195,180 @@ router.put('/profile', auth, async (req, res) => {
     }
 });
 
-// Upload profile picture
-router.post('/profile-image', auth, upload.single('profileImage'), async (req, res) => {
+// Upload profile picture - SAFE VERSION with comprehensive error handling
+router.post('/profile-image', auth, async (req, res) => {
+  let uploadedFilePath = null;
+  let originalProfileImage = null;
+  
   try {
-    if (!req.file) {
-      return res.status(400).json({ message: 'No file uploaded' });
-    }
-
+    // Step 1: Get user and store original profile image for rollback
     const user = await User.findById(req.user._id);
     if (!user) {
       return res.status(404).json({ message: 'User not found' });
     }
+    originalProfileImage = user.profileImage;
 
-    // Create full URL for the uploaded image
-    const baseUrl = process.env.NODE_ENV === 'production' 
-      ? `https://${req.get('host')}` 
-      : `http://localhost:${process.env.PORT || 5000}`;
-    
-    const imageUrl = `${baseUrl}/uploads/${req.file.filename}`;
-    
-    // Update user's profile image with full URL
+    // Step 2: Handle file upload with custom error handling
+    await new Promise((resolve, reject) => {
+      upload.single('profileImage')(req, res, (err) => {
+        if (err) {
+          console.error('Upload middleware error:', err);
+          if (err.code === 'LIMIT_FILE_SIZE') {
+            return reject(new Error('File too large. Maximum size is 5MB.'));
+          }
+          if (err.code === 'LIMIT_FILE_COUNT') {
+            return reject(new Error('Too many files. Please upload one image.'));
+          }
+          if (err.message.includes('Invalid file type')) {
+            return reject(new Error('Invalid file type. Please upload JPEG, PNG, GIF, or WebP images only.'));
+          }
+          return reject(new Error(`Upload failed: ${err.message}`));
+        }
+        resolve();
+      });
+    });
+
+    // Step 3: Validate uploaded file
+    if (!req.file) {
+      return res.status(400).json({ message: 'No file uploaded. Please select an image.' });
+    }
+
+    uploadedFilePath = req.file.path;
+    console.log('File uploaded successfully:', req.file.filename);
+
+    // Step 4: Additional file validation
+    const allowedMimeTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
+    if (!allowedMimeTypes.includes(req.file.mimetype)) {
+      throw new Error('Invalid file type detected after upload.');
+    }
+
+    // Step 5: Create image URL (handle both production and development)
+    let imageUrl;
+    if (process.env.NODE_ENV === 'production') {
+      const host = req.get('host');
+      imageUrl = `https://${host}/uploads/${req.file.filename}`;
+    } else {
+      const port = process.env.PORT || 5000;
+      imageUrl = `http://localhost:${port}/uploads/${req.file.filename}`;
+    }
+
+    // Step 6: Update user profile with transaction-like behavior
+    const previousImage = user.profileImage;
     user.profileImage = imageUrl;
-    await user.save();
+    
+    // Step 7: Save user and validate the save was successful
+    const savedUser = await user.save();
+    if (!savedUser) {
+      throw new Error('Failed to save user profile');
+    }
 
-    console.log('Profile image uploaded:', imageUrl);
+    console.log('Profile image updated successfully:', {
+      userId: user._id,
+      previousImage,
+      newImage: imageUrl,
+      filename: req.file.filename
+    });
+
+    // Step 8: Return success response
     res.json({ 
-      profileImage: user.profileImage,
-      message: 'Profile image uploaded successfully' 
+      success: true,
+      profileImage: savedUser.profileImage,
+      message: 'Profile image uploaded and updated successfully!',
+      filename: req.file.filename
+    });
+
+  } catch (error) {
+    console.error('Profile image upload error:', {
+      error: error.message,
+      stack: error.stack,
+      userId: req.user?._id,
+      uploadedFile: uploadedFilePath
+    });
+
+    // Step 9: Cleanup on error - remove uploaded file if it exists
+    if (uploadedFilePath && require('fs').existsSync(uploadedFilePath)) {
+      try {
+        require('fs').unlinkSync(uploadedFilePath);
+        console.log('Cleaned up uploaded file after error:', uploadedFilePath);
+      } catch (cleanupError) {
+        console.error('Failed to cleanup uploaded file:', cleanupError.message);
+      }
+    }
+
+    // Step 10: Rollback user profile image if it was modified
+    if (originalProfileImage !== null && req.user?._id) {
+      try {
+        await User.findByIdAndUpdate(req.user._id, { profileImage: originalProfileImage });
+        console.log('Rolled back profile image to original value');
+      } catch (rollbackError) {
+        console.error('Failed to rollback profile image:', rollbackError.message);
+      }
+    }
+
+    // Step 11: Send appropriate error response
+    const errorMessage = error.message || 'Unknown error occurred during upload';
+    const statusCode = error.message.includes('File too large') ? 413 :
+                      error.message.includes('Invalid file type') ? 415 :
+                      error.message.includes('No file uploaded') ? 400 : 500;
+
+    res.status(statusCode).json({ 
+      success: false,
+      message: errorMessage,
+      error: process.env.NODE_ENV === 'development' ? error.stack : undefined
+    });
+  }
+});
+
+// Test endpoint for profile upload functionality - DEVELOPMENT ONLY
+router.get('/test-upload-health', auth, async (req, res) => {
+  try {
+    const fs = require('fs');
+    const path = require('path');
+    
+    // Check if uploads directory exists and is writable
+    const uploadsDir = path.join(__dirname, '../uploads');
+    const uploadsExists = fs.existsSync(uploadsDir);
+    
+    let uploadsWritable = false;
+    if (uploadsExists) {
+      try {
+        const testFile = path.join(uploadsDir, 'test-write.tmp');
+        fs.writeFileSync(testFile, 'test');
+        fs.unlinkSync(testFile);
+        uploadsWritable = true;
+      } catch (writeError) {
+        console.error('Uploads directory not writable:', writeError.message);
+      }
+    }
+
+    // Check user exists and can be updated
+    const user = await User.findById(req.user._id);
+    const userExists = !!user;
+
+    res.json({
+      success: true,
+      uploadHealthCheck: {
+        uploadsDirectoryExists: uploadsExists,
+        uploadsDirectoryWritable: uploadsWritable,
+        userExists: userExists,
+        environment: process.env.NODE_ENV,
+        timestamp: new Date().toISOString()
+      },
+      message: 'Upload system health check completed',
+      recommendations: uploadsExists && uploadsWritable && userExists 
+        ? ['All systems ready for profile upload testing']
+        : [
+            !uploadsExists ? 'Create uploads directory' : null,
+            !uploadsWritable ? 'Fix uploads directory permissions' : null,
+            !userExists ? 'User authentication issue' : null
+          ].filter(Boolean)
     });
   } catch (error) {
-    console.error('Error uploading profile image:', error);
-    res.status(500).json({ message: 'Error uploading profile image' });
+    res.status(500).json({
+      success: false,
+      message: 'Upload health check failed',
+      error: error.message
+    });
   }
 });
 
