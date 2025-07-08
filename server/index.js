@@ -19,9 +19,15 @@ const app = express();
 
 // Local Development - No production middleware needed
 
-// Simple CORS for Local Development
+// CORS Configuration for Both Local Development AND Production
 const corsOptions = {
-  origin: ['http://localhost:5173', 'http://localhost:3000'], // Vite and CRA defaults
+  origin: [
+    'http://localhost:5173', 
+    'http://localhost:3000',
+    'https://x-twitter-mern-frontend.onrender.com', // Production frontend
+    /\.onrender\.com$/, // Allow all Render subdomains
+    /\.vercel\.app$/ // Allow Vercel domains
+  ],
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization'],
