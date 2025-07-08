@@ -5,6 +5,55 @@ const auth = require('../middleware/auth');
 const Tweet = require('../models/Tweet');
 const upload = require('../utils/mediaUpload');
 
+// HEALTH CHECK ROUTES - MUST BE FIRST (before parameterized routes)
+// Public health check for upload system - NO AUTH REQUIRED
+router.get('/upload-system-health', async (req, res) => {
+  try {
+    const fs = require('fs');
+    const path = require('path');
+    
+    // Check if uploads directory exists and is writable
+    const uploadsDir = path.join(__dirname, '../uploads');
+    const uploadsExists = fs.existsSync(uploadsDir);
+    
+    let uploadsWritable = false;
+    if (uploadsExists) {
+      try {
+        const testFile = path.join(uploadsDir, 'test-write.tmp');
+        fs.writeFileSync(testFile, 'test');
+        fs.unlinkSync(testFile);
+        uploadsWritable = true;
+      } catch (writeError) {
+        console.error('Uploads directory not writable:', writeError.message);
+      }
+    }
+
+    res.json({
+      success: true,
+      systemHealth: {
+        uploadsDirectoryExists: uploadsExists,
+        uploadsDirectoryWritable: uploadsWritable,
+        environment: process.env.NODE_ENV,
+        timestamp: new Date().toISOString(),
+        server: 'running'
+      },
+      message: 'Upload system health check completed (no auth required)',
+      recommendations: uploadsExists && uploadsWritable 
+        ? ['Upload system ready']
+        : [
+            !uploadsExists ? 'Create uploads directory' : null,
+            !uploadsWritable ? 'Fix uploads directory permissions' : null
+          ].filter(Boolean)
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: 'Upload health check failed',
+      error: error.message
+    });
+  }
+});
+
 // Get suggested users (random registered users excluding followed ones)
 // This must come before /:identifier route to avoid conflicts
 router.get('/suggested', auth, async (req, res) => {
@@ -242,15 +291,11 @@ router.post('/profile-image', auth, async (req, res) => {
       throw new Error('Invalid file type detected after upload.');
     }
 
-    // Step 5: Create image URL (handle both production and development)
-    let imageUrl;
-    if (process.env.NODE_ENV === 'production') {
-      const host = req.get('host');
-      imageUrl = `https://${host}/uploads/${req.file.filename}`;
-    } else {
-      const port = process.env.PORT || 5000;
-      imageUrl = `http://localhost:${port}/uploads/${req.file.filename}`;
-    }
+    // Step 5: Create image URL for local development
+    const port = process.env.PORT || 5000;
+    const imageUrl = `http://localhost:${port}/uploads/${req.file.filename}`;
+    
+    console.log('Generated image URL:', imageUrl);
 
     // Step 6: Update user profile with transaction-like behavior
     const previousImage = user.profileImage;
@@ -319,7 +364,7 @@ router.post('/profile-image', auth, async (req, res) => {
   }
 });
 
-// Test endpoint for profile upload functionality - DEVELOPMENT ONLY
+// Test endpoint for profile upload functionality - REQUIRES AUTH
 router.get('/test-upload-health', auth, async (req, res) => {
   try {
     const fs = require('fs');

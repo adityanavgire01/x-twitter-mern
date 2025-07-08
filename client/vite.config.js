@@ -1,13 +1,11 @@
 import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
 
-// https://vitejs.dev/config/
+// Simple Vite config for local development
 export default defineConfig({
   plugins: [react()],
   server: {
-    watch: {
-      usePolling: true,
-    },
+    port: 5173,
     proxy: {
       '/api': {
         target: 'http://localhost:5000',
@@ -15,28 +13,5 @@ export default defineConfig({
         secure: false,
       }
     }
-  },
-  build: {
-    outDir: 'dist',
-    assetsDir: 'assets',
-    sourcemap: false,
-    minify: 'esbuild',
-    target: 'esnext',
-    rollupOptions: {
-      output: {
-        manualChunks: {
-          vendor: ['react', 'react-dom'],
-          router: ['react-router-dom'],
-          utils: ['axios']
-        }
-      }
-    }
-  },
-  preview: {
-    port: 3000,
-    host: true
-  },
-  optimizeDeps: {
-    include: ['react', 'react-dom', 'react-router-dom', 'axios']
   }
 })

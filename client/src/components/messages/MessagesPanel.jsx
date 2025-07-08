@@ -204,8 +204,8 @@ const NewMessageInlineContent = ({ onSelectRecipient }) => {
               onClick={() => onSelectRecipient(user._id)}
             >
               <div className="followee-avatar">
-                {user.profilePicture ? (
-                  <img src={user.profilePicture} alt={user.username} />
+                {user.profileImage ? (
+                  <img src={user.profileImage} alt={user.username} />
                 ) : (
                   <div className="default-avatar">
                     {user.username[0].toUpperCase()}
